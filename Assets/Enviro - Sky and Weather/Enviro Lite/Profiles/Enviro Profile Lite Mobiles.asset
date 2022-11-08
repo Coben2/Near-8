@@ -1432,7 +1432,7 @@ MonoBehaviour:
   fogSettings:
     Fogmode: 2
     useSimpleFog: 0
-    useUnityFog: 0
+    useUnityFog: 1
     distanceFog: 1
     useRadialDistance: 1
     startDistance: 0
@@ -1835,7 +1835,7 @@ MonoBehaviour:
     auroraColorshiftSettings: {x: 0.05, y: 0.05, z: 0, w: 5}
     auroraSpeed: 0.005
   viewMode: 3
-  viewModeLW: 0
+  viewModeLW: 6
   showPlayerSetup: 0
   showRenderingSetup: 0
   showComponentsSetup: 0

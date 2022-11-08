@@ -44,7 +44,7 @@ MonoBehaviour:
     flatCloudsDirectLightIntensity: 86.1
     flatCloudsAmbientLightIntensity: 0
     flatCloudsHGPhase: 1
-    flatCoverage: 1.662
+    flatCoverage: 1.45
     particleLayer1Alpha: 0.891
     particleLayer1Brightness: 0.897
     particleLayer1ColorPow: 2
@@ -68,7 +68,7 @@ MonoBehaviour:
     ctime0: 1735
     ctime1: 6939
     ctime2: 15806
-    ctime3: 17733
+    ctime3: 19468
     ctime4: 32575
     ctime5: 55319
     ctime6: 60524
