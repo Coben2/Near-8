@@ -5,7 +5,25 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
+  - enabled: 0
+    path: 
+    guid: 00000000000000000000000000000000
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: d1c3109bdb54ad54c8a2b2838528e640
+    path: Assets/Scenes/Point_1.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/Extended Maze Outdoor.unity
+    guid: c20e4fe5f3975ef4ebde674d01181cc6
+  - enabled: 1
+    path: Assets/Scenes/Extended Maze Blue.unity
+    guid: a68164c0494de5d4294102e68545dead
+  - enabled: 1
+    path: Assets/Scenes/The Desert.unity
+    guid: fb42f41357486e0499e5a88958b10464
+  - enabled: 0
+    path: Assets/Scenes/Hallway Updated.unity
+    guid: a74aabc4a6acbf346aafed880d01d427
+  - enabled: 0
+    path: Assets/Scenes/Point-2.unity
+    guid: ba2e56431d6e57042a6be6c8684aa32d
   m_configObjects: {}

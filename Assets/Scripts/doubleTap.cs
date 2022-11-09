@@ -4,10 +4,10 @@ using UnityEngine;
 
 public class doubleTap : MonoBehaviour
 {
-      int tapCount;
-      float doubleTapTimer;
-      public gameManager gManage;
-    // Start is called before the first frame update
+      int tapCount;                     //defines an integer "tapCount"
+      float doubleTapTimer;             //defines a floating point value "doubleTapTimer"
+      public gameManager gManage;       //defines gameManager (script) as gManage
+
     void Start()
     {
         
@@ -25,32 +25,30 @@ public class doubleTap : MonoBehaviour
 
         if (Input.touchCount == 1 && Input.GetTouch(0).phase == TouchPhase.Began)
          {
-             tapCount++;
+             tapCount++;                //when screen is touched, adds 1 to tapCount integer
          }
          if (tapCount > 0)
          {
-             doubleTapTimer += Time.deltaTime;
+             doubleTapTimer += Time.deltaTime;      //if the tapCount is greater than 0, doubleTapTimer starts counting frames
              
          }
-         if (tapCount >= 2)
+         if (tapCount >= 2)                    //if the tapCount is greaterthan or equal to 2,
          {
-             //What you want to do
-            
-             doubleTapTimer = 0.0f;
-             tapCount = 0;
-             if(gManage.gameState == 2)
+             doubleTapTimer = 0.0f;         //set doubleTapTimer to 0
+             tapCount = 0;                  //set tapCount to 0
+             if(gManage.gameState == 2)     //if gameManager script's defined gameState integer is equal to 2,
              {
-                 gManage.gameState = 1;
+                 gManage.gameState = 1;         //set gameState to 1
                  return;
              }
-               if(gManage.gameState == 1)
+               if(gManage.gameState == 1)   //if gameManager script's defined gameState int is equal to 1
              {
-                 gManage.gameState = 2;
+                 gManage.gameState = 2;         //set gameState to 2
                  return;
              }
-               if(gManage.gameState == 3)
+               if(gManage.gameState == 3)   //if gameManager script's defined gameState int is equal to 3,
              {
-                 gManage.gameState = 1;
+                 gManage.gameState = 1;         //set gameState to 1
                  return;
              }
              
@@ -58,10 +56,10 @@ public class doubleTap : MonoBehaviour
              
            
          }
-         if (doubleTapTimer > 0.5f)
+         if (doubleTapTimer > 0.5f)         //if doubleTapTimer floating-point value is greater than 0.5(floating),
          {
-             doubleTapTimer = 0f;
-             tapCount = 0;
+             doubleTapTimer = 0f;               //set doubleTapTimer to 0
+             tapCount = 0;                      //set tapCount to 0
          }
     }
 }
