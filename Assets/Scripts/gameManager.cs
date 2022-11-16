@@ -29,7 +29,7 @@ public class gameManager : MonoBehaviour
     //Second instructions
     
     public float instructTimer2;
-    public Text instructText2;
+    public GameObject instructText2;
     public GameObject panel2;
     public Light ballLight;
     
@@ -43,8 +43,8 @@ public class gameManager : MonoBehaviour
       public Vector3 peekObj;
       public bool peekBool;
       public Quaternion currentRot;
-      public Image buttonSpot;
-      public  float countdown = 4f;
+      public GameObject buttonSpot;
+      public  float countdown = 6f;
       public bool instructionsPop = false;
       public bool ran2 = false;
       public GameObject textOne;
@@ -87,11 +87,11 @@ public class gameManager : MonoBehaviour
 
     instructTimer -= Time.deltaTime;
 
-    if(instructTimer <= 0)
-    {
-        instructText.enabled = false;
-        panel.SetActive(false);
-    }
+    //if(instructTimer <= 0)
+   // {
+      //  instructText.enabled = false;
+       // panel.SetActive(false);
+   // }
 
     //Second instructions
     SecondInstructions();
@@ -172,14 +172,14 @@ public class gameManager : MonoBehaviour
             {
                 //Turn them on
                 panel2.SetActive(true);
-                instructText2.enabled = true;       
+                instructText2.SetActive(true);       
                 instructTimer2 -= Time.deltaTime;
-                buttonSpot.enabled = true;
+                buttonSpot.SetActive(true);
                 if(instructTimer2 <= 0)
                 {
-                     buttonSpot.enabled = false;
+                     buttonSpot.SetActive(false);
                      panel2.SetActive(false);
-                     instructText2.enabled =!instructText2.enabled;
+                     instructText2.SetActive(false); //  instructText2.SetActive() =!instructText2.SetActive();
                      ran1 = true;
                     
                 }   
@@ -194,12 +194,12 @@ public class gameManager : MonoBehaviour
             if(ran2 == false)
             {
                 textOne.SetActive(true);
-                buttonSpot.enabled = true;     
+                buttonSpot.SetActive(true);
                 countdown -= Time.deltaTime;
                 if(countdown <= 0)
                 {  
-                     buttonSpot.enabled = false;
-                     textOne.SetActive(false);
+                     buttonSpot.SetActive(false);
+                    textOne.SetActive(false);
                      ran2 = true;
                 }
             }     
