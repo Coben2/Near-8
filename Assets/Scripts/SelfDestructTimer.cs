@@ -14,12 +14,13 @@ public class SelfDestructTimer : MonoBehaviour
     public GameObject three;
     public GameObject two;
     public GameObject one;
-    public string url;
+    public GameObject VideotoPlay;
+  //  public string url;
 
     // Start is called before the first frame update
     void Start()
     {
-        Countdown = 40f;
+        Countdown = 60f;
     }
 
     // Update is called once per frame
@@ -58,10 +59,11 @@ public class SelfDestructTimer : MonoBehaviour
             one.SetActive(true);
             two.SetActive(false);
         }
-       // if (CountInt == 0)
-        //{
-           // Application.OpenURL(url);
+        if (CountInt == 0)
+        {
+           VideotoPlay.SetActive(true);
+           //Application.OpenURL(url);    This is done in Explode To Url script instead
            // Scriptholder.SetActive(false);
-        //}
+        }
     }
 }
