@@ -2011,7 +2011,7 @@
     "m_Guid": {
         "m_GuidSerialized": "efb6155c-7789-4bc9-b339-646ee0607efc"
     },
-    "m_Name": "Float",
+    "m_Name": "Reflection Frequency Range",
     "m_DefaultReferenceName": "Vector1_a9d6d96cd7564ef589fcd52a2db97326",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,

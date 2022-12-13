@@ -1,46 +1,52 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
+using System; 
 
-public class JoystickMove : MonoBehaviour
-{
-    [Header("New Input Properties")]
-    public NEW_BALL_MOVEMENT_JOYSTICK inputActions;
-    public InputAction joystick;
+public class JoystickMove : MonoBehaviour, IDragHandler, IPointerUpHandler, IPointerDownHandler
+{ 
+    [SerializeField] private RectTransform joystickTransform;
 
-    [Header("Ball Movement")]
-    public GameObject player; 
-    public float speed;
-    private Vector2 currentMovement;
+    [SerializeField] private float dragThreshold = 0.6f;
+
+    [SerializeField] private int dragMovementDistance = 30;
+
+    [SerializeField] private int dragOffsetDistance;
+
+    public event Action<Vector2> OnMove;
+
+    private Vector2 CalculateMovementInput(Vector2 offset)
+    {
+        float x = Mathf.Abs(offset.x) > dragThreshold ? offset.x : 0;
+        float y = Mathf.Abs(offset.y) > dragThreshold ? offset.y : 0;
+        return new Vector2(x, y);
+    }
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector2 offset;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(joystickTransform, eventData.position, null, out offset);
+        offset = Vector2.ClampMagnitude(offset, dragOffsetDistance) / dragOffsetDistance;
+        Debug.Log(offset);
+        joystickTransform.anchoredPosition = offset * dragMovementDistance;
+        Vector2 input = CalculateMovementInput(offset);
+        OnMove?.Invoke(input);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        joystickTransform.anchoredPosition = Vector2.zero;
+        OnMove?.Invoke(Vector2.zero);
+        throw new NotImplementedException();
+    }
+
     private void Awake()
     {
-        inputActions = new NEW_BALL_MOVEMENT_JOYSTICK();
-        joystick = inputActions.Movement.Move;
-
-        joystick.performed += ctx => currentMovement = ctx.ReadValue<Vector2>();
-        joystick.canceled += ctx => currentMovement = Vector2.zero;
-    }
-
-    private void Start()
-    {
-        player = GameObject.FindGameObjectWithTag("Player");
-    }
-    private void Update()
-    {
-        Vector3 move = new Vector3(currentMovement.x, 0, currentMovement.y);
-        if (joystick.IsPressed())
-        {
-            player.transform.Translate(move * speed * Time.deltaTime);
-        }
-    }
-    private void OnEnable()
-    {
-        inputActions.Movement.Enable();
-    }
-
-    private void OnDisable()
-    {
-        inputActions.Movement.Disable();
+        joystickTransform = (RectTransform)transform;
     }
 }
