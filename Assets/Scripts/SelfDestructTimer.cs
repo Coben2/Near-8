@@ -1,12 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SelfDestructTimer : MonoBehaviour
 {
     public GameObject Scriptholder;
     public float Countdown;
     public int CountInt;
+
+    public GameObject TextDeactive1;
+    public GameObject TextDeactive2;
+
     public GameObject panel;
     public GameObject baseText;
     public GameObject five;
@@ -15,17 +20,20 @@ public class SelfDestructTimer : MonoBehaviour
     public GameObject two;
     public GameObject one;
     public GameObject VideotoPlay;
+  //  public string scenetoload;
   //  public string url;
 
     // Start is called before the first frame update
     void Start()
     {
-        Countdown = 60f;
+        Countdown = 6.5f;
     }
 
     // Update is called once per frame
     void Update()
     {
+        TextDeactive1.SetActive(false);
+        TextDeactive2.SetActive(false);
         Countdown -= Time.deltaTime;
         CountInt = Mathf.RoundToInt(Countdown);
 
@@ -62,8 +70,10 @@ public class SelfDestructTimer : MonoBehaviour
         if (CountInt == 0)
         {
            VideotoPlay.SetActive(true);
-           //Application.OpenURL(url);    This is done in Explode To Url script instead
-           // Scriptholder.SetActive(false);
+          //  Vibrator.Vibrate(500);
+          //  SceneManager.LoadSceneAsync(scenetoload);
+            //Application.OpenURL(url);    <-This is done in Explode To Url script instead
+            // Scriptholder.SetActive(false);
         }
     }
 }

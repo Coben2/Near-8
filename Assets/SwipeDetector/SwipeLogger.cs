@@ -9,8 +9,8 @@ public class SwipeLogger : MonoBehaviour
           public GameObject ballCam;
 
           public tap2Move tap2;
-          public gameManager gManage;
-          public detectPeek peekScript;
+          //public gameManager gManage;
+          //public detectPeek peekScript;
 
 
     private void Awake()
@@ -73,11 +73,11 @@ public class SwipeLogger : MonoBehaviour
             //swipe up to move forward
 
             tap2.moveUp();
-            if(gManage.gameState == 4)
-            {
-                 gManage.gameState = 2;
+            //if(gManage.gameState == 4)
+            //{
+            //     gManage.gameState = 2;
                 
-            }
+            //}
 
             
         }
@@ -85,11 +85,11 @@ public class SwipeLogger : MonoBehaviour
         {
           
             tap2.moveDown();
-            if(gManage.gameState == 4)
-            {
-                gManage.gameState = 2;
+            //if(gManage.gameState == 4)
+            //{
+            //    gManage.gameState = 2;
                
-            }
+            //}
         }
     }
 }

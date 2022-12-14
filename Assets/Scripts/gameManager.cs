@@ -13,12 +13,13 @@ public class gameManager : MonoBehaviour
     public GameObject gyroScriptObj3;
     public GameObject ball;
     public GameObject Maze;
-    public bool groundCamIsOn;
+    public bool groundCamIsOn; //makes the accelerometer movement turn on in ballGyro script
     public ballGyro bGyro;
     public SwipeDetector swipeDetect;
 
     public SwipeLogger swipeLog;
     public Button button;
+    public Button destructbutton;
 
     public doubleTap dTap;
     
@@ -44,12 +45,17 @@ public class gameManager : MonoBehaviour
       public bool peekBool;
       public Quaternion currentRot;
       public GameObject buttonSpot;
+      public GameObject destbuttonvis;
       public  float countdown = 6f;
       public bool instructionsPop = false;
       public bool ran2 = false;
       public GameObject textOne;
+      public GameObject textdisappear1;
+      public GameObject textdisappear2;
+      //public GameObject textdisappear3;
+    public TapInstructTimer tapinstruct;
 
-      public bool triggered;
+    public bool triggered;
     // public swipeMove sMove;
     // Start is called before the first frame update
 
@@ -79,11 +85,13 @@ public class gameManager : MonoBehaviour
       if(groundCamIsOn == true)
       {
           button.gameObject.SetActive(true);
+            destructbutton.gameObject.SetActive(true);
       }
       else
       {
           button.gameObject.SetActive(false);
-      }
+            destructbutton.gameObject.SetActive(false);
+        }
 
     instructTimer -= Time.deltaTime;
 
@@ -172,13 +180,24 @@ public class gameManager : MonoBehaviour
             {
                 //Turn them on
                 panel2.SetActive(true);
-                instructText2.SetActive(true);       
+                instructText2.SetActive(true);
+
+                ran2 = true;
+                textOne.SetActive(false);
+                textdisappear1.SetActive(false);
+                textdisappear2.SetActive(false);
+                //textdisappear3.SetActive(false);
+                
+
+
                 instructTimer2 -= Time.deltaTime;
                 buttonSpot.SetActive(true);
+                destbuttonvis.SetActive(true);
                 if(instructTimer2 <= 0)
                 {
                      buttonSpot.SetActive(false);
-                     panel2.SetActive(false);
+                    destbuttonvis.SetActive(false);
+                    panel2.SetActive(false);
                      instructText2.SetActive(false); //  instructText2.SetActive() =!instructText2.SetActive();
                      ran1 = true;
                     
@@ -194,11 +213,17 @@ public class gameManager : MonoBehaviour
             if(ran2 == false)
             {
                 textOne.SetActive(true);
+                textdisappear1.SetActive(false);
+                textdisappear2.SetActive(false);
+                tapinstruct.enabled = false;
+
                 buttonSpot.SetActive(true);
+                destbuttonvis.SetActive(true);
                 countdown -= Time.deltaTime;
                 if(countdown <= 0)
                 {  
                      buttonSpot.SetActive(false);
+                    destbuttonvis.SetActive(false);
                     textOne.SetActive(false);
                      ran2 = true;
                 }
@@ -266,6 +291,7 @@ public class gameManager : MonoBehaviour
            swipeLog.enabled = true;
            exit.gameObject.SetActive(false);
            button.gameObject.SetActive(true);
+           destructbutton.gameObject.SetActive(true);
             break;
         case 5:
             print ("Ulg, glib, Pblblblblb");

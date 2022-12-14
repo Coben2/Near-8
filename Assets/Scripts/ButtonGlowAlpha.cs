@@ -20,6 +20,7 @@ public class ButtonGlowAlpha : MonoBehaviour
         [Tooltip("the image you want to fade, assign in inspector")]
         [SerializeField] private Image img;
 
+    public Color color;
 
         void OnEnable()
         {
@@ -86,7 +87,7 @@ public class ButtonGlowAlpha : MonoBehaviour
         for (float i = 0; i <= 1; i += Time.deltaTime)
         {
             // set color with i as alpha
-            img.color = new Color(1, 1, 1, i);
+            img.color = new Color(color.r, color.g, color.b, i);
             yield return null;
         }
 
@@ -97,7 +98,7 @@ public class ButtonGlowAlpha : MonoBehaviour
         for (float i = 1; i >= 0; i -= Time.deltaTime)
         {
             // set color with i as alpha
-            img.color = new Color(1, 1, 1, i);
+            img.color = new Color(color.r, color.g, color.b, i);
             yield return null;
         }
         for (int x = 1; x <= 5; x++)
