@@ -16,6 +16,8 @@ public class JoystickMove : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
 
     public event Action<Vector2> OnMove;
 
+
+
     private Vector2 CalculateMovementInput(Vector2 offset)
     {
         float x = Mathf.Abs(offset.x) > dragThreshold ? offset.x : 0;
@@ -42,7 +44,6 @@ public class JoystickMove : MonoBehaviour, IDragHandler, IPointerUpHandler, IPoi
     {
         joystickTransform.anchoredPosition = Vector2.zero;
         OnMove?.Invoke(Vector2.zero);
-        throw new NotImplementedException();
     }
 
     private void Awake()
