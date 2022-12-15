@@ -5,7 +5,7 @@ using UnityEngine;
 public class ballGyroCINE : MonoBehaviour
 {
     //public Camera groundCam;
-    public MovementChange gManage;
+    public Movement1stPerson gManage;
 
     public Quaternion currentRotation;
     public float timer = 2f;

@@ -21,22 +21,27 @@ public class Movement1stPerson : MonoBehaviour
     public GameObject gyroScriptBall; //ball (or the player, whatever you wanna call it)(also needs gyroScope)
     public GameObject Playerjoystick;
 
-    public SwipeDetector swipeDetect;
-    public SwipeLogger swipeLog;
+    public GameObject ballController;
+    private Controller controller;
+
+    //public SwipeDetector swipeDetect;
+    //public SwipeLogger swipeLog;
 
     int tapCount;
     float doubleTapTimer;
 
     void Start()
     {
+        controller = ballController.GetComponent<Controller>();
+
         if (isTiltScene == true)
         {
             gameState = 1;
             Cam2active = false;
             CineCam2.SetActive(false); //ground camera
             //instructTimer = 3f;
-            swipeLog.enabled = false;
-            swipeDetect.enabled = false;
+           // swipeLog.enabled = false;
+            //swipeDetect.enabled = false;
         }
         else
         {
@@ -45,8 +50,8 @@ public class Movement1stPerson : MonoBehaviour
             buttonSpot.SetActive(true);
             Cam2active = true;  //makes the accelerometer movement turn on in ballGyro script
             CineCam2.SetActive(true); //ground camera
-            swipeLog.enabled = false;
-            swipeDetect.enabled = false;
+           // swipeLog.enabled = false;
+            //swipeDetect.enabled = false;
 
             gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
             gyroScriptBall.GetComponent<gyroScope>().enabled = true;
@@ -124,12 +129,13 @@ public class Movement1stPerson : MonoBehaviour
                 CineCam2.SetActive(false);
                 bGyro.enabled = true;
                 Cam2active = false;
-                swipeDetect.enabled = false;
-                swipeLog.enabled = false;
+                //swipeDetect.enabled = false;
+                //swipeLog.enabled = false;
                 break;
 
             case 2:
                 //DISABLE/ENABLE for NO Joystick
+                controller.enabled = false;
 
                 lookaround.SetActive(false);
                 joystickVisual.SetActive(false);
@@ -147,8 +153,8 @@ public class Movement1stPerson : MonoBehaviour
                 // gyroScriptLevel.transform.rotation = Quaternion.Euler(90, 0, 0);
                 Cam2active = true;
                 //instructionsPop = true;
-                swipeDetect.enabled = false;
-                swipeLog.enabled = false;
+                //swipeDetect.enabled = false;
+                //swipeLog.enabled = false;
 
                 break;
 
@@ -163,6 +169,7 @@ public class Movement1stPerson : MonoBehaviour
                 //swipeLog.enabled = true;
 
                 //DISABLE/ENABLE for Joystick
+                controller.enabled = true;
 
                 lookaround.SetActive(true);
                 joystickVisual.SetActive(true);

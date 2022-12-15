@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 0
-    path: 
-    guid: 00000000000000000000000000000000
-  - enabled: 0
     path: Assets/Scenes/editable Maze 2022 Copy.unity
     guid: 54842d02219dfdf418bde3a86c4269ca
   - enabled: 0
@@ -20,4 +17,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Tester.unity
     guid: 17bf19d6a13e2ee41a854a44dc41859a
+  - enabled: 0
+    path: Assets/Scenes/WhiteRoom 1.unity
+    guid: 8c75a4d4cf1384e47b84cbbf8aa742b5
+  - enabled: 0
+    path: Assets/Scenes/WhiteRoom 2.unity
+    guid: 1c551bdeb40507c48bca096ccfd64bbe
+  - enabled: 0
+    path: Assets/Scenes/WhiteRoom 3.unity
+    guid: e8ff252465e57034f98a661e269b66cf
+  - enabled: 0
+    path: Assets/Scenes/WhiteRoom 4.unity
+    guid: 515a194d665ee9f4eb9f8f7e9e7754f9
   m_configObjects: {}

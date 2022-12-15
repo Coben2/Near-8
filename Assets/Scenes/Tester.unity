@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Lens:
     FieldOfView: 60
     OrthographicSize: 5
-    NearClipPlane: 0.3
+    NearClipPlane: 0.1
     FarClipPlane: 1000
     Dutch: 0
     LensShift: {x: 0, y: 0}
@@ -894,7 +894,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a7bf0d0012ab947a0136ebfe7eab75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gManage: {fileID: 1305119806}
+  gManage: {fileID: 1259177207}
   currentRotation: {x: 0, y: 0, z: 0, w: 0}
   timer: 2
   curSpeed: 0
@@ -1967,45 +1967,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1259177208}
   - component: {fileID: 1259177207}
-  - component: {fileID: 1259177206}
-  - component: {fileID: 1259177205}
   m_Layer: 0
-  m_Name: movement change (1)
+  m_Name: movement change 1stperson
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1259177205
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259177204}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 028472b123b82d84581ce50c233c21b1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ball: {fileID: 0}
-  speed: 0
-  ballCam: {fileID: 0}
-  tap2: {fileID: 0}
---- !u!114 &1259177206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259177204}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5569c274d4e51324aaae8e6f20d08376, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  detectSwipeOnlyAfterRelease: 1
-  minDistanceForSwipe: 20
 --- !u!114 &1259177207
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2032,8 +2000,7 @@ MonoBehaviour:
   gyroScriptLevel: {fileID: 230610161}
   gyroScriptBall: {fileID: 578033849}
   Playerjoystick: {fileID: 1790192006}
-  swipeDetect: {fileID: 1259177206}
-  swipeLog: {fileID: 1259177205}
+  ballController: {fileID: 1790192006}
 --- !u!4 &1259177208
 Transform:
   m_ObjectHideFlags: 0
@@ -2218,8 +2185,8 @@ MonoBehaviour:
   gyroScriptLevel: {fileID: 230610161}
   gyroScriptBall: {fileID: 1666719188}
   Playerjoystick: {fileID: 1157171878}
-  swipeDetect: {fileID: 1305119805}
-  swipeLog: {fileID: 1305119804}
+  swipeDetect: {fileID: 0}
+  swipeLog: {fileID: 0}
 --- !u!1 &1310108024
 GameObject:
   m_ObjectHideFlags: 0
@@ -2888,7 +2855,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b9a4042e52de02340b393d42861e5050, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lookSpeed: 1
+  lookSpeed: 0.3
 --- !u!1 &1666719188
 GameObject:
   m_ObjectHideFlags: 0
@@ -3119,7 +3086,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a7bf0d0012ab947a0136ebfe7eab75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gManage: {fileID: 1305119806}
+  gManage: {fileID: 0}
   currentRotation: {x: 0, y: 0, z: 0, w: 0}
   timer: 2
   curSpeed: 0
