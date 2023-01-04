@@ -8,17 +8,17 @@ PlayerSettings:
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
-  defaultScreenOrientation: 4
+  defaultScreenOrientation: 0
   targetDevice: 2
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
-  productName: Near 8
+  companyName: SkyTest
+  productName: accelFixTest1
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
-  m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
+  m_SplashScreenBackgroundColor: {r: 0.043137256, g: 0, b: 0, a: 1}
   m_ShowUnitySplashScreen: 1
-  m_ShowUnitySplashLogo: 1
+  m_ShowUnitySplashLogo: 0
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
   m_SplashScreenLogoStyle: 1
@@ -39,7 +39,9 @@ PlayerSettings:
     y: 0
     width: 1
     height: 1
-  m_SplashScreenLogos: []
+  m_SplashScreenLogos:
+  - logo: {fileID: 21300000, guid: d84509764e345e845b7d189c4a868d16, type: 3}
+    duration: 4
   m_VirtualRealitySplashScreen: {fileID: 0}
   m_HolographicTrackingLossScreen: {fileID: 0}
   defaultScreenWidth: 1920
@@ -66,7 +68,7 @@ PlayerSettings:
   disableDepthAndStencilBuffers: 0
   androidStartInFullscreen: 1
   androidRenderOutsideSafeArea: 0
-  androidUseSwappy: 1
+  androidUseSwappy: 0
   androidBlitType: 1
   androidResizableWindow: 0
   androidDefaultWindowWidth: 1920
@@ -76,7 +78,7 @@ PlayerSettings:
   androidFullscreenMode: 1
   defaultIsNativeResolution: 1
   macRetinaSupport: 1
-  runInBackground: 1
+  runInBackground: 0
   captureSingleScreen: 0
   muteOtherAudioSources: 0
   Prepare IOS For Recording: 0
@@ -134,8 +136,10 @@ PlayerSettings:
     16:10: 1
     16:9: 1
     Others: 1
-  bundleVersion: 0.1
-  preloadedAssets: []
+  bundleVersion: 
+  preloadedAssets:
+  - {fileID: 0}
+  - {fileID: 0}
   metroInputSource: 0
   wsaTransparentSwapchain: 0
   m_HolographicPauseOnTrackingLoss: 1
@@ -152,7 +156,8 @@ PlayerSettings:
   resolutionScalingMode: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
-  applicationIdentifier: {}
+  applicationIdentifier:
+    Android: com.SkyTest.accelFixTest1
   buildNumber:
     Standalone: 0
     iPhone: 0
@@ -236,8 +241,8 @@ PlayerSettings:
   templateDefaultScene: Assets/Scenes/SampleScene.unity
   useCustomMainManifest: 0
   useCustomLauncherManifest: 0
-  useCustomMainGradleTemplate: 0
-  useCustomLauncherGradleManifest: 0
+  useCustomMainGradleTemplate: 1
+  useCustomLauncherGradleManifest: 1
   useCustomBaseGradleTemplate: 0
   useCustomGradlePropertiesTemplate: 0
   useCustomProguardFile: 0
@@ -270,6 +275,72 @@ PlayerSettings:
   - m_BuildTarget: Android
     m_Icons:
     - m_Textures: []
+      m_Width: 192
+      m_Height: 192
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures: []
+      m_Width: 144
+      m_Height: 144
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures: []
+      m_Width: 96
+      m_Height: 96
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures: []
+      m_Width: 72
+      m_Height: 72
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures: []
+      m_Width: 48
+      m_Height: 48
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures: []
+      m_Width: 36
+      m_Height: 36
+      m_Kind: 0
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 192
+      m_Height: 192
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 144
+      m_Height: 144
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 96
+      m_Height: 96
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 72
+      m_Height: 72
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 48
+      m_Height: 48
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures:
+      - {fileID: 0}
+      m_Width: 36
+      m_Height: 36
+      m_Kind: 1
+      m_SubKind: 
+    - m_Textures: []
       m_Width: 432
       m_Height: 432
       m_Kind: 2
@@ -298,66 +369,6 @@ PlayerSettings:
       m_Width: 81
       m_Height: 81
       m_Kind: 2
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 192
-      m_Height: 192
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 144
-      m_Height: 144
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 96
-      m_Height: 96
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 72
-      m_Height: 72
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 48
-      m_Height: 48
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 36
-      m_Height: 36
-      m_Kind: 0
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 192
-      m_Height: 192
-      m_Kind: 1
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 144
-      m_Height: 144
-      m_Kind: 1
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 96
-      m_Height: 96
-      m_Kind: 1
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 72
-      m_Height: 72
-      m_Kind: 1
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 48
-      m_Height: 48
-      m_Kind: 1
-      m_SubKind: 
-    - m_Textures: []
-      m_Width: 36
-      m_Height: 36
-      m_Kind: 1
       m_SubKind: 
   m_BuildTargetBatching:
   - m_BuildTarget: Standalone
@@ -690,19 +701,19 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
   scriptingDefineSymbols:
-    1: ENVIRO_LW;ENVIRO_HD
-    7: ENVIRO_LW;ENVIRO_HD
-    13: ENVIRO_LW;ENVIRO_HD
-    14: ENVIRO_LW;ENVIRO_HD
-    19: ENVIRO_LW;ENVIRO_HD
-    21: ENVIRO_LW;ENVIRO_HD
-    25: ENVIRO_LW;ENVIRO_HD
-    27: ENVIRO_LW;ENVIRO_HD
-    28: ENVIRO_LW;ENVIRO_HD
-    29: ENVIRO_LW;ENVIRO_HD
-    30: ENVIRO_LW;ENVIRO_HD
-    32: ENVIRO_LW;ENVIRO_HD
-    33: ENVIRO_LW;ENVIRO_HD
+    1: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    7: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    13: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    14: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    19: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    21: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    25: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    27: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    28: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    29: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    30: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    32: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    33: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -792,7 +803,7 @@ PlayerSettings:
     m_VersionCode: 1
     m_VersionName: 
   apiCompatibilityLevel: 6
-  activeInputHandler: 1
+  activeInputHandler: 2
   cloudProjectId: 
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []

@@ -181,11 +181,11 @@ MonoBehaviour:
       m_RotationOrder: 0
     ambientSkyColor:
       serializedVersion: 2
-      key0: {r: 0.12716262, g: 0.1394896, b: 0.17647058, a: 1}
-      key1: {r: 0.19296063, g: 0.2237646, b: 0.31617647, a: 1}
-      key2: {r: 0.7882353, g: 0.53333336, b: 0.25882354, a: 0}
-      key3: {r: 0.6, g: 0.69803923, b: 0.7647059, a: 0}
-      key4: {r: 0.6, g: 0.69803923, b: 0.7647059, a: 0}
+      key0: {r: 0.2509804, g: 0.28235295, b: 0.3529412, a: 1}
+      key1: {r: 0.38431373, g: 0.44705883, b: 0.63529414, a: 1}
+      key2: {r: 1.5764706, g: 1.0666667, b: 0.5176471, a: 1}
+      key3: {r: 1.2, g: 1.3960785, b: 1.5294118, a: 0}
+      key4: {r: 1.2, g: 1.3960785, b: 1.5294118, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
@@ -199,7 +199,7 @@ MonoBehaviour:
       ctime7: 0
       atime0: 0
       atime1: 65535
-      atime2: 0
+      atime2: 65535
       atime3: 0
       atime4: 0
       atime5: 0
@@ -881,7 +881,7 @@ MonoBehaviour:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0
+        value: 0.2539978
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -932,7 +932,7 @@ MonoBehaviour:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 1.5
+        value: 1.3860779
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -1432,7 +1432,7 @@ MonoBehaviour:
   fogSettings:
     Fogmode: 2
     useSimpleFog: 0
-    useUnityFog: 1
+    useUnityFog: 0
     distanceFog: 1
     useRadialDistance: 1
     startDistance: 0
@@ -1441,7 +1441,7 @@ MonoBehaviour:
     heightFog: 1
     height: 54.49
     heightFogIntensity: 1
-    heightDensity: 1.95
+    heightDensity: 1.9500045
     noiseIntensity: 1
     noiseIntensityOffset: 0.3
     noiseScale: 0.001
@@ -1835,12 +1835,12 @@ MonoBehaviour:
     auroraColorshiftSettings: {x: 0.05, y: 0.05, z: 0, w: 5}
     auroraSpeed: 0.005
   viewMode: 3
-  viewModeLW: 6
+  viewModeLW: 1
   showPlayerSetup: 0
   showRenderingSetup: 0
   showComponentsSetup: 0
-  showTimeUI: 1
+  showTimeUI: 0
   showWeatherUI: 0
   showAudioUI: 0
   showEffectsUI: 1
-  modified: 1
+  modified: 0

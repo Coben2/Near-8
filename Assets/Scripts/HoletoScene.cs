@@ -9,8 +9,8 @@ public class HoletoScene : MonoBehaviour
 
     public void OnTriggerEnter()
     {
-        Debug.Log("trigger entered");
+       // Debug.Log("trigger entered");
         SceneManager.LoadSceneAsync(gotoScene);
-        Debug.Log("loaded scene");
+      //  Debug.Log("loaded scene");
     }
 }
