@@ -6,6 +6,7 @@ public class ballGyroCINE : MonoBehaviour
 {
     //public Camera groundCam;
     public Movement1stPerson gManage;
+    public Movement1stPersonIntroMaze gManageMaze;
 
     public Quaternion currentRotation;
     public float timer = 2f;
@@ -30,6 +31,39 @@ public class ballGyroCINE : MonoBehaviour
         //groundCam.transform.rotation = transform.rotation;
         //    Debug.Log(Input.gyro.attitude);
         dir = Input.acceleration;
+
+        if (gManageMaze.Cam2active == true)
+        {
+
+            rigid.constraints = RigidbodyConstraints.FreezeRotation;
+            rigid.velocity = Vector3.zero;
+
+
+
+
+            if (Input.acceleration.z <= -.4f)
+            {
+                transform.Translate(Vector3.forward * Time.deltaTime);
+
+            }
+            if (Input.acceleration.z >= .1)
+            {
+                transform.Translate(Vector3.back * Time.deltaTime);
+
+            }
+
+        }
+        else
+        {
+            rigid.constraints = RigidbodyConstraints.None;
+
+
+        }
+
+        if (gManageMaze.gameState == 3)
+        {
+            rigid.velocity = Vector3.zero;
+        }
 
         if (gManage.Cam2active == true)
         {

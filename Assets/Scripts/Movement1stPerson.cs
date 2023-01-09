@@ -5,6 +5,7 @@ using UnityEngine;
 public class Movement1stPerson : MonoBehaviour
 {
     public int gameState;
+    public Camera MainCamera;
     public bool isTiltScene;
     public GameObject buttonSpot;
     public float buttonTimer;
@@ -23,6 +24,10 @@ public class Movement1stPerson : MonoBehaviour
 
     public GameObject ballController;
     private Controller controller;
+    private CharacterController charcon4Joy;
+
+    public GameObject joystickInstruct;
+    public float joyinstructTimer;
 
     //public SwipeDetector swipeDetect;
     //public SwipeLogger swipeLog;
@@ -33,15 +38,18 @@ public class Movement1stPerson : MonoBehaviour
     void Start()
     {
         controller = ballController.GetComponent<Controller>();
+        charcon4Joy = ballController.GetComponent<CharacterController>();
+
 
         if (isTiltScene == true)
         {
             gameState = 1;
             Cam2active = false;
             CineCam2.SetActive(false); //ground camera
-            //instructTimer = 3f;
-           // swipeLog.enabled = false;
-            //swipeDetect.enabled = false;
+                                       //instructTimer = 3f;
+                                       // swipeLog.enabled = false;
+                                       //swipeDetect.enabled = false;
+            MainCamera.orthographic = true;
         }
         else
         {
@@ -50,8 +58,9 @@ public class Movement1stPerson : MonoBehaviour
             buttonSpot.SetActive(true);
             Cam2active = true;  //makes the accelerometer movement turn on in ballGyro script
             CineCam2.SetActive(true); //ground camera
-           // swipeLog.enabled = false;
-            //swipeDetect.enabled = false;
+                                      // swipeLog.enabled = false;
+                                      //swipeDetect.enabled = false;
+            MainCamera.orthographic = false;
 
             gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
             gyroScriptBall.GetComponent<gyroScope>().enabled = true;
@@ -62,13 +71,21 @@ public class Movement1stPerson : MonoBehaviour
 
     void Update()
     {
-
+        joyinstructTimer -= Time.deltaTime;
         buttonTimer -= Time.deltaTime;
+
+        if (joyinstructTimer <= 0)
+        {
+            joystickInstruct.SetActive(false);
+        }
+
         if (buttonTimer <= 0)
         {
             buttonSpot.SetActive(false);
         }
+
         GameStates();
+
         if (isTiltScene == true)
         {
             dTap();
@@ -134,14 +151,22 @@ public class Movement1stPerson : MonoBehaviour
                 break;
 
             case 2:
+                gyroScriptBall.GetComponent<Rigidbody>().useGravity = true;
+
                 //DISABLE/ENABLE for NO Joystick
                 controller.enabled = false;
+                charcon4Joy.enabled = false;
 
                 lookaround.SetActive(false);
                 joystickVisual.SetActive(false);
                 //gyroScriptBall.SetActive(true);
                 //Playerjoystick.SetActive(false);
 
+                
+                MainCamera.orthographic = false;
+
+                //buttonTimer = 4f;
+                //buttonSpot.SetActive(true);
 
                 //Switch to ground
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
@@ -150,8 +175,11 @@ public class Movement1stPerson : MonoBehaviour
                 CineCam2.SetActive(true);
                 JoystickCam.SetActive(false);
                 CineCam1.SetActive(false);
-                // gyroScriptLevel.transform.rotation = Quaternion.Euler(90, 0, 0);
+                 gyroScriptLevel.transform.rotation = Quaternion.Euler(0, 0, 0);
                 Cam2active = true;
+
+                
+                gyroScriptBall.GetComponent<SphereCollider>().enabled = true;
                 //instructionsPop = true;
                 //swipeDetect.enabled = false;
                 //swipeLog.enabled = false;
@@ -159,23 +187,28 @@ public class Movement1stPerson : MonoBehaviour
                 break;
 
             case 3:
+                
+
                 //Disable Free look Camera
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
                 gyroScriptBall.GetComponent<gyroScope>().enabled = false;
                 bGyro.enabled = false;
-                Cam2active = true;
-                //gyroScriptLevel.transform.rotation = Quaternion.Euler(90, 0, 0);
+                Cam2active = false;
+                gyroScriptLevel.transform.rotation = Quaternion.Euler(0, 0, 0);
                 //swipeDetect.enabled = true;
                 //swipeLog.enabled = true;
 
                 //DISABLE/ENABLE for Joystick
                 controller.enabled = true;
+                charcon4Joy.enabled = true;
 
                 lookaround.SetActive(true);
                 joystickVisual.SetActive(true);
                 //Playerjoystick.SetActive(true);
                 //gyroScriptBall.SetActive(false);
 
+                gyroScriptBall.GetComponent<SphereCollider>().enabled = false;
+                gyroScriptBall.GetComponent<Rigidbody>().useGravity = false;
 
                 CineCam2.SetActive(false);
                 JoystickCam.SetActive(true);
@@ -193,6 +226,8 @@ public class Movement1stPerson : MonoBehaviour
 
             buttonSpot.SetActive(true);
             buttonTimer = 3;
+            joyinstructTimer = 5f;
+            joystickInstruct.SetActive(true);
 
             //gyroScriptBall.GetComponent<gyroScope>().enabled = false;
             //bGyro.enabled = false;

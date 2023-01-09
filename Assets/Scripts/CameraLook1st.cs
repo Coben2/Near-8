@@ -29,8 +29,8 @@ public class CameraLook1st : MonoBehaviour
     {
         CinemachinePOV pov = cinemachine.GetCinemachineComponent<CinemachinePOV>();
         Vector2 delta = playerInput.PlayerMain.Look.ReadValue<Vector2>();
-        pov.m_HorizontalAxis.Value += delta.x * 200 * lookSpeed * Time.deltaTime;
-        pov.m_VerticalAxis.Value += delta.y * lookSpeed * Time.deltaTime;
+        pov.m_HorizontalAxis.Value += delta.x * -1 * 200 * lookSpeed * Time.deltaTime;
+        pov.m_VerticalAxis.Value += delta.y * -1 * lookSpeed * Time.deltaTime;
     }
 }
 
