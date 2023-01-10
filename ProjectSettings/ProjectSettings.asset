@@ -3,7 +3,7 @@
 --- !u!129 &1
 PlayerSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 22
+  serializedVersion: 23
   productGUID: 316ac1678b5e97c4c9fee3efdb41ab8b
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
@@ -18,7 +18,7 @@ PlayerSettings:
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.043137256, g: 0, b: 0, a: 1}
   m_ShowUnitySplashScreen: 1
-  m_ShowUnitySplashLogo: 0
+  m_ShowUnitySplashLogo: 1
   m_SplashScreenOverlayOpacity: 1
   m_SplashScreenAnimation: 1
   m_SplashScreenLogoStyle: 1
@@ -149,11 +149,13 @@ PlayerSettings:
     enable360StereoCapture: 0
   isWsaHolographicRemotingEnabled: 0
   enableFrameTimingStats: 0
+  enableOpenGLProfilerGPURecorders: 1
   useHDRDisplay: 0
   D3DHDRBitDepth: 0
   m_ColorGamuts: 0000000003000000
   targetPixelDensity: 30
   resolutionScalingMode: 0
+  resetResolutionOnWindowResize: 0
   androidSupportedAspectRatio: 1
   androidMaxAspectRatio: 2.1
   applicationIdentifier:
@@ -164,7 +166,7 @@ PlayerSettings:
     tvOS: 0
   overrideDefaultApplicationIdentifier: 0
   AndroidBundleVersionCode: 1
-  AndroidMinSdkVersion: 19
+  AndroidMinSdkVersion: 22
   AndroidTargetSdkVersion: 0
   AndroidPreferredInstallLocation: 1
   aotOptions: 
@@ -220,6 +222,7 @@ PlayerSettings:
   iOSLaunchScreeniPadCustomStoryboardPath: 
   iOSDeviceRequirements: []
   iOSURLSchemes: []
+  macOSURLSchemes: []
   iOSBackgroundModes: 0
   iOSMetalForceHardShadows: 0
   metalEditorSupport: 1
@@ -386,6 +389,7 @@ PlayerSettings:
   - m_BuildTarget: WebGL
     m_StaticBatching: 0
     m_DynamicBatching: 0
+  m_BuildTargetShaderSettings: []
   m_BuildTargetGraphicsJobs:
   - m_BuildTarget: MacStandaloneSupport
     m_GraphicsJobs: 0
@@ -427,11 +431,13 @@ PlayerSettings:
     m_Automatic: 1
   - m_BuildTarget: AndroidPlayer
     m_APIs: 150000000b000000
-    m_Automatic: 0
+    m_Automatic: 1
   - m_BuildTarget: WebGLSupport
     m_APIs: 0b000000
     m_Automatic: 0
   m_BuildTargetVRSettings: []
+  m_DefaultShaderChunkSizeInMB: 16
+  m_DefaultShaderChunkCount: 0
   openGLRequireES31: 0
   openGLRequireES31AEP: 0
   openGLRequireES32: 0
@@ -445,6 +451,7 @@ PlayerSettings:
     m_EncodingQuality: 1
   m_BuildTargetGroupLightmapSettings: []
   m_BuildTargetNormalMapEncoding: []
+  m_BuildTargetDefaultTextureCompressionFormat: []
   playModeTestRunnerEnabled: 0
   runPlayModeTestAsEditModeTest: 0
   actionOnDotNetUnhandledException: 1
@@ -463,6 +470,7 @@ PlayerSettings:
   switchScreenResolutionBehavior: 2
   switchUseCPUProfiler: 0
   switchUseGOLDLinker: 0
+  switchLTOSetting: 0
   switchApplicationID: 0x01004b9000490000
   switchNSODependencies: 
   switchTitleNames_0: 
@@ -592,8 +600,11 @@ PlayerSettings:
   switchNetworkInterfaceManagerInitializeEnabled: 1
   switchPlayerConnectionEnabled: 1
   switchUseNewStyleFilepaths: 0
+  switchUseLegacyFmodPriorities: 1
   switchUseMicroSleepForYield: 1
+  switchEnableRamDiskSupport: 0
   switchMicroSleepForYieldTime: 25
+  switchRamDiskSpaceSize: 12
   ps4NPAgeRating: 12
   ps4NPTitleSecret: 
   ps4NPTrophyPackPath: 
@@ -700,20 +711,22 @@ PlayerSettings:
   webGLLinkerTarget: 1
   webGLThreadsSupport: 0
   webGLDecompressionFallback: 0
+  webGLPowerPreference: 2
   scriptingDefineSymbols:
-    1: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    7: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    13: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    14: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    19: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    21: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    25: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    27: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    28: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    29: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    30: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    32: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
-    33: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Android: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    EmbeddedLinux: UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LW;ENVIRO_HD
+    GameCoreXboxOne: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    LinuxHeadlessSimulation: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Lumin: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Nintendo Switch: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    PS4: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    PS5: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Stadia: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Standalone: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    WebGL: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    Windows Store Apps: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    XboxOne: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
+    tvOS: ENVIRO_LW;ENVIRO_HD;UNITY_POST_PROCESSING_STACK_V2;ENVIRO_LWRP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
@@ -724,8 +737,8 @@ PlayerSettings:
   suppressCommonWarnings: 1
   allowUnsafeCode: 0
   useDeterministicCompilation: 1
-  useReferenceAssemblies: 1
   enableRoslynAnalyzers: 1
+  selectedPlatform: 0
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
   gcIncremental: 1
@@ -761,6 +774,7 @@ PlayerSettings:
   metroFTAName: 
   metroFTAFileTypes: []
   metroProtocolName: 
+  vcxProjDefaultLanguage: 
   XboxOneProductId: 
   XboxOneUpdateKey: 
   XboxOneSandboxId: 
@@ -804,6 +818,7 @@ PlayerSettings:
     m_VersionName: 
   apiCompatibilityLevel: 6
   activeInputHandler: 2
+  windowsGamepadBackendHint: 0
   cloudProjectId: 
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
@@ -811,4 +826,6 @@ PlayerSettings:
   organizationId: 
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
+  playerDataPath: 
+  forceSRGBBlit: 1
   virtualTexturingSupportEnabled: 0
