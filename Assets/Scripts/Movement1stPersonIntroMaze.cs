@@ -164,6 +164,7 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
                 break;
 
             case 2:
+                //    gyroScriptBall.SetActive(true);
                 gyroScriptBall.GetComponent<Rigidbody>().useGravity = true;
 
                 //DISABLE/ENABLE for NO Joystick
@@ -227,6 +228,8 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
 
                 CineCam2.SetActive(false);
                 JoystickCam.SetActive(true);
+
+                //    gyroScriptBall.SetActive(false);
 
                 break;
         }

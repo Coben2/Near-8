@@ -17,17 +17,19 @@ public class ExitWhiteRoom : MonoBehaviour
         camAnim = cam.GetComponent<Animator>();
     }
 
-    public void PortalPress()
+    public IEnumerator PortalPress()
     {
         // Debug.Log("trigger entered");
         camAnim.Play("Outro");
+        yield return null;
 
         //  Debug.Log("loaded scene");
     }
-    public void HallwayPress()
+    public IEnumerator HallwayPress()
     {
         // Debug.Log("trigger entered");
         camAnim.Play("ExitWhitetoHallway");
+        yield return null;
 
         //  Debug.Log("loaded scene");
     }
@@ -41,6 +43,7 @@ public class ExitWhiteRoom : MonoBehaviour
     }
     public void NextWhiteRoom()
     {
+        //Debug.Log("NextScene");
         SceneManager.LoadSceneAsync(gotoScene);
     }
 }

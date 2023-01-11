@@ -20,28 +20,16 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Tester.unity
     guid: 17bf19d6a13e2ee41a854a44dc41859a
-  - enabled: 0
-    path: Assets/Scenes/WhiteRoom .1.unity
-    guid: 8c75a4d4cf1384e47b84cbbf8aa742b5
-  - enabled: 0
-    path: Assets/Scenes/WhiteRoom .2.unity
-    guid: 1c551bdeb40507c48bca096ccfd64bbe
-  - enabled: 0
-    path: Assets/Scenes/WhiteRoom .3.unity
-    guid: e8ff252465e57034f98a661e269b66cf
-  - enabled: 0
-    path: Assets/Scenes/WhiteRoom .4.unity
-    guid: 515a194d665ee9f4eb9f8f7e9e7754f9
   - enabled: 1
     path: Assets/Scenes/WhiteRoom 1.unity
-    guid: 02a2890e5f048844bbfb75b339633454
-  - enabled: 1
+    guid: 2273781549f3b0a4997daccc56621959
+  - enabled: 0
     path: Assets/Scenes/WhiteRoom 2.unity
-    guid: 6c0818178df02f446a51f1468649622b
-  - enabled: 1
+    guid: d8406c6ad990a7540baa60e8f68b6119
+  - enabled: 0
     path: Assets/Scenes/WhiteRoom 3.unity
-    guid: 7d14390b717193c4a8eab94dee5037de
-  - enabled: 1
+    guid: 26a987b7255cdbd4498ff6db0e8aca7e
+  - enabled: 0
     path: Assets/Scenes/WhiteRoom 4.unity
-    guid: e842de7206203e94faac8c61525bca9b
+    guid: 78ae7a15f94e79f4da00ba0500c756ab
   m_configObjects: {}

@@ -12,7 +12,7 @@ public class ballGyroCINE : MonoBehaviour
     public float timer = 2f;
 
     Vector3 dir = Vector3.zero;
-    public float curSpeed;
+    public float Speed;
 
     public Rigidbody rigid;
     public float backSpeed;
@@ -43,12 +43,12 @@ public class ballGyroCINE : MonoBehaviour
 
             if (Input.acceleration.z <= -.4f)
             {
-                transform.Translate(Vector3.forward * Time.deltaTime);
+                transform.Translate(Vector3.forward * Time.deltaTime * Speed);
 
             }
             if (Input.acceleration.z >= .1)
             {
-                transform.Translate(Vector3.back * Time.deltaTime);
+                transform.Translate(Vector3.back * Time.deltaTime * Speed);
 
             }
 
@@ -76,12 +76,12 @@ public class ballGyroCINE : MonoBehaviour
 
             if (Input.acceleration.z <= -.4f)
             {
-                transform.Translate(Vector3.forward * Time.deltaTime);
+                transform.Translate(Vector3.forward * Time.deltaTime * Speed);
 
             }
             if (Input.acceleration.z >= .1)
             {
-                transform.Translate(Vector3.back * Time.deltaTime);
+                transform.Translate(Vector3.back * Time.deltaTime * Speed);
 
             }
 
