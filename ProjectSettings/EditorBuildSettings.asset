@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/editable Maze 2022 BeforeJoystick.unity
     guid: 0f2f4e862610ba0439445d9185d606a5
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Hallway Updated.unity
     guid: f4e4f797de85f8a4ab2e0e4f37d83e53
   - enabled: 0
@@ -23,13 +23,13 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/WhiteRoom 1.unity
     guid: 2273781549f3b0a4997daccc56621959
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/WhiteRoom 2.unity
     guid: d8406c6ad990a7540baa60e8f68b6119
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/WhiteRoom 3.unity
     guid: 26a987b7255cdbd4498ff6db0e8aca7e
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/WhiteRoom 4.unity
     guid: 78ae7a15f94e79f4da00ba0500c756ab
   m_configObjects: {}
