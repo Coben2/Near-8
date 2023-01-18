@@ -72,7 +72,7 @@ public class Movement1stPerson : MonoBehaviour
     void Update()
     {
         joyinstructTimer -= Time.deltaTime;
-        buttonTimer -= Time.deltaTime;
+        //buttonTimer -= Time.deltaTime;
 
         if (joyinstructTimer <= 0)
         {
