@@ -278,10 +278,9 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.48, y: -3.519, z: -2.09}
   m_LocalScale: {x: 3, y: 3, z: 3}
-  m_Children:
-  - {fileID: 419461034}
+  m_Children: []
   m_Father: {fileID: 2106898821}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &24990763
 GameObject:
@@ -853,7 +852,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Sprite: {fileID: 21300000, guid: 4773c03f9a51f254f92f69ad2d95afcd, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2994,11 +2993,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 419461033}
   m_LocalRotation: {x: 0.07330541, y: -0, z: -0, w: 0.99730957}
-  m_LocalPosition: {x: 0.019, y: 0, z: 0.315}
-  m_LocalScale: {x: 0.59999996, y: 0.5999997, z: 0.5999997}
+  m_LocalPosition: {x: -1.423, y: -3.519, z: -1.145}
+  m_LocalScale: {x: 1.8, y: 1.799999, z: 1.799999}
   m_Children: []
-  m_Father: {fileID: 22738460}
-  m_RootOrder: 0
+  m_Father: {fileID: 2106898821}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 8.408, y: 0, z: 0}
 --- !u!114 &419461035
 MonoBehaviour:
@@ -3621,7 +3620,7 @@ Transform:
   m_Children:
   - {fileID: 1846397838}
   m_Father: {fileID: 2106898821}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 8.408, y: 86.509, z: 0}
 --- !u!114 &555237725
 MonoBehaviour:
@@ -4330,7 +4329,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2106898821}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 86.509, z: 0}
 --- !u!1 &656270294
 GameObject:
@@ -8455,7 +8454,7 @@ Transform:
   m_Children:
   - {fileID: 1747519116}
   m_Father: {fileID: 2106898821}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 37.231, y: 107.48, z: 0}
 --- !u!1 &1356264188
 GameObject:
@@ -11034,6 +11033,7 @@ MonoBehaviour:
   gotoScene: WhiteRoom 4
   cam: {fileID: 1609257985}
   url: https://near8.io/
+  sceneName: 
 --- !u!95 &1609257984
 Animator:
   serializedVersion: 3
@@ -13787,6 +13787,7 @@ MonoBehaviour:
   gotoScene: WhiteRoom 4
   cam: {fileID: 1609257985}
   url: https://near8.io/
+  sceneName: 
 --- !u!1 &2004728191
 GameObject:
   m_ObjectHideFlags: 0
@@ -14245,6 +14246,7 @@ Transform:
   m_Children:
   - {fileID: 2053950581}
   - {fileID: 1395315351}
+  - {fileID: 419461034}
   - {fileID: 22738460}
   - {fileID: 1354638159}
   - {fileID: 636065724}

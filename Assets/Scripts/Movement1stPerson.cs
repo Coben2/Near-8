@@ -35,6 +35,9 @@ public class Movement1stPerson : MonoBehaviour
     int tapCount;
     float doubleTapTimer;
 
+    Transform ControlTrans;
+    Transform BallTrans;
+
     void Start()
     {
         controller = ballController.GetComponent<Controller>();
@@ -89,6 +92,16 @@ public class Movement1stPerson : MonoBehaviour
         if (isTiltScene == true)
         {
             dTap();
+        }
+        if (gameState == 2)
+        {
+            BallTrans = gyroScriptBall.transform;
+            ControlTrans.position = BallTrans.position;
+        }
+        if (gameState == 3)
+        {
+            ControlTrans = ballController.transform;
+            BallTrans.position = ControlTrans.position;
         }
     }
 
