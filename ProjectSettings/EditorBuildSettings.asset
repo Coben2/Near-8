@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/editable Maze 2022 Copy.unity
     guid: 54842d02219dfdf418bde3a86c4269ca
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/editable Maze 2022 BeforeJoystick.unity
     guid: 0f2f4e862610ba0439445d9185d606a5
   - enabled: 1

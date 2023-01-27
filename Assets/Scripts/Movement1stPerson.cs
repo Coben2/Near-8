@@ -40,6 +40,8 @@ public class Movement1stPerson : MonoBehaviour
 
     void Start()
     {
+        ControlTrans = ballController.transform;
+
         controller = ballController.GetComponent<Controller>();
         charcon4Joy = ballController.GetComponent<CharacterController>();
 
@@ -74,8 +76,10 @@ public class Movement1stPerson : MonoBehaviour
 
     void Update()
     {
+        Vector3 eulers = ControlTrans.eulerAngles;
+
         joyinstructTimer -= Time.deltaTime;
-        //buttonTimer -= Time.deltaTime;
+        buttonTimer -= Time.deltaTime;
 
         if (joyinstructTimer <= 0)
         {
@@ -179,7 +183,7 @@ public class Movement1stPerson : MonoBehaviour
                 MainCamera.orthographic = false;
 
                 //buttonTimer = 4f;
-                //buttonSpot.SetActive(true);
+                buttonSpot.SetActive(true);
 
                 //Switch to ground
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;

@@ -5,6 +5,7 @@ using UnityEngine;
 public class AttackState : StateMachineBehaviour
 {
     Transform player;
+    //public float Speed = 1f;
     CreditsVariable credits;
     public float waitTilDamage;
 
@@ -15,6 +16,7 @@ public class AttackState : StateMachineBehaviour
         credits = GameObject.FindGameObjectWithTag("Player").GetComponent<CreditsVariable>();
 
         waitTilDamage = 10f;
+        //animator.GetComponent<LookAtCoroutine>().DoRotate();
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -22,7 +24,9 @@ public class AttackState : StateMachineBehaviour
     {
         waitTilDamage -= 1;
 
-        animator.transform.LookAt(player);
+        animator.GetComponent<LookAtCoroutine>().DoRotate();
+        //StartCoroutine(LookAt());
+        //animator.transform.LookAt(player);
         float distanceFromPlayer = Vector3.Distance(player.position, animator.transform.position);
 
         if (waitTilDamage <= 0)
@@ -32,11 +36,25 @@ public class AttackState : StateMachineBehaviour
         }
 
 
-        if (distanceFromPlayer > 1.5f)
+        if (distanceFromPlayer > 1.3f)
         {
             animator.SetBool("IsAttacking", false);
         }
     }
+
+    //private IEnumerator LookAt()
+    //{
+    //    Quaternion lookRotation = Quaternion.LookRotation(player.position - animator.transform.position);
+
+    //    float time = 0;
+
+    //    while (time < 1) 
+    //    {
+    //        animator.transform.rotation = Quaternion.Slerp(animator.transform.rotation, lookRotation, time);
+    //        time += Time.deltaTime * Speed;
+    //        yield return null;
+    //    }
+    //}
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
