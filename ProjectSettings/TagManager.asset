@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Marker
   - Enemy
+  - WalkMarker
   layers:
   - Default
   - TransparentFX
