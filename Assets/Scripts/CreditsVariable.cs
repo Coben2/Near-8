@@ -6,6 +6,7 @@ public class CreditsVariable : MonoBehaviour
 {
     public float credits, maxCredits;
     public CreditsBar creditsbar;
+    //public GameObject damagescreen;
 
     public void DrainCredits()
     {
@@ -14,6 +15,7 @@ public class CreditsVariable : MonoBehaviour
 
         credits -= Mathf.Min(1, credits);
         creditsbar.UpdateCreditBar();
+        //damagescreen.SetActive(true);
     }
 
     // Update is called once per frame

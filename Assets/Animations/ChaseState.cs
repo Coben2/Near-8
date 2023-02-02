@@ -9,22 +9,31 @@ public class ChaseState : StateMachineBehaviour
 
     Transform player;
 
+    //public GameObject damagescreen;
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         agent = animator.GetComponent<NavMeshAgent>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
-        agent.speed = 0.6f;
+        agent.speed = 1.5f;
+        //damagescreen.SetActive(false);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         // maybe add line of SIGHT check here in the future to set "IsChasing" to false when player out of sight
+        if (player.position.x >= 81.3)
+        {
+            animator.SetBool("IsChasing", false);
+            animator.SetBool("IsPatroling", true);
+        }
+
 
         agent.SetDestination(player.position);
         float distanceFromPlayer = Vector3.Distance(player.position, animator.transform.position);
-        if (distanceFromPlayer < 1.2f)
+        if (distanceFromPlayer < 1.1f)
         {
             animator.SetBool("IsAttacking", true);
         }

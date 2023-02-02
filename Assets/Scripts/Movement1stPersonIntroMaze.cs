@@ -36,6 +36,7 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
     float doubleTapTimer;
 
     Transform ControlTrans;
+    Transform BallTrans;
 
     void Start()
     {
@@ -100,6 +101,16 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
         {
             ControlTrans.eulerAngles = new Vector3(eulers.x, eulers.y, eulers.z);
             //ballController.transform = ControlTrans;
+        }
+        if (gameState == 2)
+        {
+            BallTrans = gyroScriptBall.transform;
+            ControlTrans.position = BallTrans.position;
+        }
+        if (gameState == 3)
+        {
+            ControlTrans = ballController.transform;
+            BallTrans.position = ControlTrans.position;
         }
     }
 

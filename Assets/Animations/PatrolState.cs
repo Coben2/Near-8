@@ -12,11 +12,13 @@ public class PatrolState : StateMachineBehaviour
 
     float chaseRange = 10;
 
+    float timer;
+
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         agent = animator.GetComponent<NavMeshAgent>();
-        agent.speed = 0.5f;
+        agent.speed = 0.6f;
 
         GameObject go = GameObject.FindGameObjectWithTag("Marker");
         foreach(Transform t in go.transform)
@@ -26,6 +28,8 @@ public class PatrolState : StateMachineBehaviour
         agent.SetDestination(markers[Random.Range(0, markers.Count)].position);
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
+
+        timer = 0;
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -37,10 +41,17 @@ public class PatrolState : StateMachineBehaviour
         }
 
         float distanceFromPlayer = Vector3.Distance(player.position, animator.transform.position);
-        if(distanceFromPlayer < chaseRange)
+
+        timer += Time.deltaTime;
+
+        if (timer > 15)
         {
-            animator.SetBool("IsChasing", true);
+            if (distanceFromPlayer < chaseRange)
+            {
+                animator.SetBool("IsChasing", true);
+            }
         }
+        
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

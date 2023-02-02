@@ -6,11 +6,12 @@ using Cinemachine;
 
 public class ExitWhiteRoom : MonoBehaviour
 {
-    // Start is called before the first frame update
     public string gotoScene;
     [SerializeField] private CinemachineVirtualCamera cam;
     private Animator camAnim;
     [SerializeField] private string url;
+
+    public string sceneName;
 
     private void Start()
     {
@@ -43,6 +44,10 @@ public class ExitWhiteRoom : MonoBehaviour
     }
     public void NextWhiteRoom()
     {
+        Scene currentscene = SceneManager.GetActiveScene();
+        sceneName = currentscene.name;
+        //Indestructable.instance.prevScene = Application.loadedLevel;
+        Indestructable.instance.prevSceneName = sceneName;
         //Debug.Log("NextScene");
         SceneManager.LoadSceneAsync(gotoScene);
     }

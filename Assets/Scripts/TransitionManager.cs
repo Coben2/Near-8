@@ -35,6 +35,17 @@ public class TransitionManager : MonoBehaviour
 
     private void Start()
     {
+        //Check previous scene, if Hallway, intro bool = true
+        if (Indestructable.instance.prevSceneName.Contains("Hallway Updated"))
+        {
+            intro = true;
+        }
+        else
+        {
+            intro = false;
+        }
+
+
         //Build the StringRigs list
         StringRigs = new List<List<GameObject>>();
         StringRigs.Add(StringRig1);
