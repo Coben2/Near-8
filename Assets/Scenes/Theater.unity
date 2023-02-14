@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 1777332688}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 68b9ce05e16bf263383cc65b952714ca, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.022537986, g: 0.0245989, b: 0.045960095, a: 1}
+  m_IndirectSpecularColor: {r: 0.055868797, g: 0.065119535, b: 0.06371426, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -684,6 +684,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (4)
@@ -1042,6 +1050,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (1)
@@ -1587,7 +1603,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 408811801}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 607c4999198a7a54e92c67fa874b43ab, type: 3}
   m_Name: 
@@ -1603,7 +1619,7 @@ BoxCollider:
   m_GameObject: {fileID: 408811801}
   m_Material: {fileID: 0}
   m_IsTrigger: 1
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Size: {x: 2.07, y: 2.13, z: 1.7678757}
   m_Center: {x: 0, y: 1, z: 0.037539594}
@@ -1670,6 +1686,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting
@@ -2283,6 +2307,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (5)
@@ -3239,6 +3271,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (2)
@@ -3743,6 +3783,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (7)
@@ -9057,6 +9105,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (8)
@@ -9460,47 +9516,6 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!21 &1777332688
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Enviro/Lite/SkyboxSimple
-  m_Shader: {fileID: 4800000, guid: 846f1e8b410d51444866f03712815c1e, type: 3}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _FlatCloudsBaseTexture:
-        m_Texture: {fileID: 2800000, guid: 9b9ac0c14a0678d498b26fb2486005f1, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _FlatCloudsDetailTexture:
-        m_Texture: {fileID: 2800000, guid: 3904de3fb7c0ff1419fd3064f8114c90, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MoonTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _Stars:
-        m_Texture: {fileID: 8900000, guid: 214e1a8de772f334886a8d3bee074dc9, type: 3}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats: []
-    m_Colors:
-    - _HorizonColor: {r: 0.1576035, g: 0.17855045, b: 0.25496444, a: 1}
-    - _SkyColor: {r: 0.15622203, g: 0.1757288, b: 0.24683815, a: 0.41604972}
-    - _SunColor: {r: 0.48760265, g: 0.25598893, b: 0.010755951, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1001 &1786827888
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -9564,6 +9579,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (3)
@@ -10552,6 +10575,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 52780192f2aeed94abbc8c90d04a5d7a, type: 2}
+    - target: {fileID: -809828480950454423, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
+      propertyPath: m_Materials.Array.data[3]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6bc8a215a30c5bc48a2a031dbfe4cf67, type: 2}
     - target: {fileID: 919132149155446097, guid: c20b77704a7592f4ab0ca04c0ad8d4b3, type: 3}
       propertyPath: m_Name
       value: EnemyNear8ROBOT_hipOrigin0ApplyTransform@Sitting (6)
