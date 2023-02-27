@@ -4990,7 +4990,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   vidPanel: {fileID: 767943126}
   url: https://explore.near8.io/1/
-  nextScene: Hallway Updated
+  nextScene: IndexMenu
 --- !u!328 &767943128
 VideoPlayer:
   m_ObjectHideFlags: 0
