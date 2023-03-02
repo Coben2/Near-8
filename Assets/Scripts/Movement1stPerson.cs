@@ -11,6 +11,7 @@ public class Movement1stPerson : MonoBehaviour
     public float buttonTimer;
     public GameObject joystickVisual;
     public GameObject lookaround;
+    public GameObject brake;
 
     public GameObject CineCam1;     //for overhead cam in tilt maze. if different scenes, use a script to set GameState 2 automaticly
     public GameObject CineCam2;
@@ -70,7 +71,7 @@ public class Movement1stPerson : MonoBehaviour
             gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
             gyroScriptBall.GetComponent<gyroScope>().enabled = true;
             bGyro.enabled = true;
-            CineCam2.SetActive(false);
+            //CineCam2.SetActive(false);
         }
     }
 
@@ -184,12 +185,13 @@ public class Movement1stPerson : MonoBehaviour
 
                 //buttonTimer = 4f;
                 buttonSpot.SetActive(true);
+                brake.SetActive(true);
 
                 //Switch to ground
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
                 gyroScriptBall.GetComponent<gyroScope>().enabled = true;
-                bGyro.enabled = true;
-                CineCam2.SetActive(true);
+                //bGyro.enabled = true;
+                //CineCam2.SetActive(true);
                 JoystickCam.SetActive(false);
                 CineCam1.SetActive(false);
                  gyroScriptLevel.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -214,6 +216,8 @@ public class Movement1stPerson : MonoBehaviour
                 gyroScriptLevel.transform.rotation = Quaternion.Euler(0, 0, 0);
                 //swipeDetect.enabled = true;
                 //swipeLog.enabled = true;
+
+                brake.SetActive(false);
 
                 //DISABLE/ENABLE for Joystick
                 controller.enabled = true;
@@ -256,6 +260,8 @@ public class Movement1stPerson : MonoBehaviour
         }
         if (gameState == 3)
         {
+            CineCam2.SetActive(true);
+            bGyro.enabled = true;
             gameState = 2;
 
             buttonSpot.SetActive(true);
@@ -270,4 +276,8 @@ public class Movement1stPerson : MonoBehaviour
             return;
         }
     }
+    //public void brakebutton()
+    //{
+    //    bGyro.enabled = false;
+    //}
 }
