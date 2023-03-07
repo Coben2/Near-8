@@ -7,7 +7,6 @@ TagManager:
   - Marker
   - Enemy
   - WalkMarker
-  - TouchCam
   layers:
   - Default
   - TransparentFX

@@ -41,21 +41,15 @@ public class ballGyroCINE : MonoBehaviour
 
 
 
-            if (Input.acceleration.z <= -.1f)
+            if (Input.acceleration.z <= -.4f)
             {
-                transform.Translate(Vector3.forward * Time.deltaTime * 1);
-                if (Input.acceleration.z <= -.3)
-                {
-                    transform.Translate(Vector3.forward * Time.deltaTime * Speed);
-                }
+                transform.Translate(Vector3.forward * Time.deltaTime * Speed);
+
             }
             if (Input.acceleration.z >= .1)
             {
-                transform.Translate(Vector3.back * Time.deltaTime * 1);
-                if (Input.acceleration.z <= .3)
-                {
-                    transform.Translate(Vector3.back * Time.deltaTime * Speed);
-                }
+                transform.Translate(Vector3.back * Time.deltaTime * Speed);
+
             }
 
         }

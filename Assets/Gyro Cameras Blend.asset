@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Gyro Cameras Blend
   m_EditorClassIdentifier: 
   m_CustomBlends:
-  - m_From: POVtouchCam
+  - m_From: GyroPOVtouchCam
     m_To: Gyro1stPersonCamera
     m_Blend:
       m_Style: 1

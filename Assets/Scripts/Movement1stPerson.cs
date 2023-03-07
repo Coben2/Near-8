@@ -189,7 +189,7 @@ public class Movement1stPerson : MonoBehaviour
 
                 //Switch to ground
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
-                //gyroScriptBall.GetComponent<gyroScope>().enabled = true;
+                gyroScriptBall.GetComponent<gyroScope>().enabled = true;
                 //bGyro.enabled = true;
                 //CineCam2.SetActive(true);
                 JoystickCam.SetActive(false);
@@ -262,7 +262,6 @@ public class Movement1stPerson : MonoBehaviour
         {
             CineCam2.SetActive(true);
             bGyro.enabled = true;
-            gyroScriptBall.GetComponent<gyroScope>().enabled = true;
             gameState = 2;
 
             buttonSpot.SetActive(true);
