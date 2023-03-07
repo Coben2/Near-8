@@ -19,7 +19,7 @@ public class MenuButtonsAppear : MonoBehaviour
 
     void Start()
     {
-        Countdown = 8f;
+        Countdown = 18f;
     }
 
     // Update is called once per frame
@@ -28,9 +28,13 @@ public class MenuButtonsAppear : MonoBehaviour
         Countdown -= Time.deltaTime + 0.02f;
         CountInt = Mathf.RoundToInt(Countdown);
 
-        if (CountInt == 6)
+        if(CountInt == 15)
         {
             introCam.SetActive(false);
+        }
+
+        if (CountInt == 6)
+        {
             button1.SetActive(true);
         }
         if (CountInt == 5)
