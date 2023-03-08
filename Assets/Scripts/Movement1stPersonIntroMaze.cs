@@ -11,6 +11,7 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
     public float buttonTimer;
     public GameObject joystickVisual;
     public GameObject lookaround;
+    public GameObject brake;
 
     public GameObject CineCam1;     //for overhead cam in tilt maze. if different scenes, use a script to set GameState 2 automaticly
     public GameObject CineCam2;
@@ -192,6 +193,7 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
 
                 //buttonTimer = 4f;
                 //buttonSpot.SetActive(true);
+                brake.SetActive(true);
 
                 //Switch to ground
                 gyroScriptLevel.GetComponent<gyroScope>().enabled = false;
@@ -224,6 +226,7 @@ public class Movement1stPersonIntroMaze : MonoBehaviour
                 //gyroScriptLevel.transform.rotation = Quaternion.Euler(0, 0, 0);
                 //swipeDetect.enabled = true;
                 //swipeLog.enabled = true;
+                brake.SetActive(false);
 
                 //DISABLE/ENABLE for Joystick
                 controller.enabled = true;

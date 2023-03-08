@@ -12,8 +12,8 @@ public class Controller: MonoBehaviour
 
     [SerializeField]
     private float playerSpeed = 2.0f;
-    [SerializeField]
-    private float jumpHeight = 1.0f;
+    //[SerializeField]
+    //private float jumpHeight = 1.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
     [SerializeField]
@@ -21,7 +21,7 @@ public class Controller: MonoBehaviour
 
     private Transform cameraMain;
 
-    private Transform child;
+    //private Transform child;
 
     private void Awake()
     {
@@ -42,7 +42,7 @@ public class Controller: MonoBehaviour
     private void Start()
     {
         cameraMain = Camera.main.transform;
-        child = transform.GetChild(0).transform;
+        //child = transform.GetChild(0).transform;
     }
 
     void Update()
@@ -67,10 +67,10 @@ public class Controller: MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
 
-        if (movementInput != Vector2.zero)
-        {
-            Quaternion rotation = Quaternion.Euler(new Vector3(child.localEulerAngles.x, cameraMain.localEulerAngles.y, child.localEulerAngles.z));
-            child.rotation = Quaternion.Lerp(child.rotation, rotation, Time.deltaTime * rotationSpeed);
-        }
+        //if (movementInput != Vector2.zero)
+        //{
+        //    Quaternion rotation = Quaternion.Euler(new Vector3(child.localEulerAngles.x, cameraMain.localEulerAngles.y, child.localEulerAngles.z));
+        //    child.rotation = Quaternion.Lerp(child.rotation, rotation, Time.deltaTime * rotationSpeed);
+        //}
     }
 }

@@ -26,24 +26,24 @@ public class Onboarding : MonoBehaviour
         Countdown -= Time.unscaledDeltaTime;
         CountInt = Mathf.RoundToInt(Countdown);
 
-        if (CountInt == 6)
+        if (Countdown <= 6)
         {
             Time.timeScale = 0;
             panel.SetActive(true);
             text1.SetActive(true);
             arrow1.SetActive(true);
         }
-        if (CountInt == 4)
+        if (Countdown <= 4)
         {
             text2.SetActive(true);
             arrow2.SetActive(true);
         }
-        if (CountInt == 2)
+        if (Countdown <= 2)
         {
             text3.SetActive(true);
             arrow3.SetActive(true);
         }
-        if (CountInt == 0)
+        if (Countdown <= 0)
         {
             gotIt.SetActive(true);
         }
