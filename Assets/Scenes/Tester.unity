@@ -21278,7 +21278,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 2
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &550744632
@@ -36255,6 +36254,50 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 874273733}
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!1 &877389656
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 877389658}
+  - component: {fileID: 877389657}
+  m_Layer: 0
+  m_Name: Moment Code Test
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &877389657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877389656}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f2b4d6abe8cb64fa38056cbb4d68eb3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &877389658
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 877389656}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 48.76918, y: -1.9642882, z: 73.796906}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 39
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &877945239 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2079801263955833892, guid: 9f94e0d5de797c5428ab99de8237fa41, type: 3}
@@ -41705,7 +41748,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 4
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1014306741
@@ -48198,7 +48240,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 2
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1157171881
@@ -48289,6 +48330,7 @@ MonoBehaviour:
   buttonTimer: 0
   joystickVisual: {fileID: 1470811270}
   lookaround: {fileID: 913590558}
+  brake: {fileID: 0}
   CineCam1: {fileID: 1786337690}
   CineCam2: {fileID: 2085377184}
   Cam2active: 0
@@ -55875,7 +55917,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 2
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1383097870
@@ -55973,7 +56014,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 2
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1386605024
@@ -56271,6 +56311,7 @@ MonoBehaviour:
   buttonTimer: 0
   joystickVisual: {fileID: 1763208642}
   lookaround: {fileID: 1914633802}
+  brake: {fileID: 0}
   CineCam1: {fileID: 1327266856}
   CineCam2: {fileID: 1057410756}
   Cam2active: 0
@@ -68522,6 +68563,7 @@ MonoBehaviour:
   buttonTimer: 0
   joystickVisual: {fileID: 722924739}
   lookaround: {fileID: 2142008931}
+  brake: {fileID: 0}
   CineCam1: {fileID: 130200941}
   CineCam2: {fileID: 1601580130}
   Cam2active: 0
@@ -71644,7 +71686,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 4
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1729313289
@@ -75147,7 +75188,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpeed: 2
-  jumpHeight: 1
   gravityValue: -9.81
   rotationSpeed: 4
 --- !u!143 &1790192008
@@ -77621,6 +77661,7 @@ MonoBehaviour:
   buttonTimer: 0
   joystickVisual: {fileID: 150970079}
   lookaround: {fileID: 1497583750}
+  brake: {fileID: 0}
   CineCam1: {fileID: 230106437}
   CineCam2: {fileID: 152143611}
   Cam2active: 0
