@@ -16,8 +16,8 @@ public class Controller: MonoBehaviour
     //private float jumpHeight = 1.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
-    [SerializeField]
-    private float rotationSpeed = 4f;
+    //[SerializeField]
+    //private float rotationSpeed = 4f;
 
     private Transform cameraMain;
 

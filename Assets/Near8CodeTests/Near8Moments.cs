@@ -4,10 +4,13 @@ using UnityEngine;
 // using Nethereum RPC
 using Nethereum.JsonRpc.UnityClient;
 // using contract definition
-using Near8CodeTests.Contracts.Near8Moments.ContractDefinition;
+using Near8CodeTests.Contracts.Near8Moments.ContractDefinition; //
+using TMPro; //
 
 public class Near8Moments : MonoBehaviour
 {
+    public int momentIndex;
+    public TMP_Text CoordinateText; //
   // Start is called before the first frame update
   void Start()
   {
@@ -21,7 +24,7 @@ public class Near8Moments : MonoBehaviour
     // near8moment contract address
     string contractAddress = "0x6AF1F2B400c1433f3A5469CbA4122b3Ab3c4eec1";
     // fetch moment details
-    int momentIndex = 5;
+    //int momentIndex = 5;
     var queryRequest = new QueryUnityRequest<MomentIdToMomentFunction, MomentIdToMomentOutputDTOBase>(url, contractAddress);
     // call MomentIdToMomentFunctionBas with 1 param (momentIndex) to get the moment details
     yield return queryRequest.Query(new MomentIdToMomentFunction() { ReturnValue1 = momentIndex }, contractAddress);
@@ -34,5 +37,7 @@ public class Near8Moments : MonoBehaviour
     Debug.Log("Heading: " + queryRequest.Result.Heading);
     Debug.Log("RPY: " + queryRequest.Result.Rpy);
     Debug.Log("MomentHash: " + queryRequest.Result.MomentHash);
+        CoordinateText.text = queryRequest.Result.MomentHash; //
+     Destroy(gameObject);
   }
 }

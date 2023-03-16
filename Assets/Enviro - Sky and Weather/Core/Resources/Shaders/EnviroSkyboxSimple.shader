@@ -379,5 +379,5 @@ Shader "Enviro/Lite/SkyboxSimple"
 			}
 
     }
-    FallBack "None"
+    FallBack Off
 }

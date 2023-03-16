@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class IdleState : StateMachineBehaviour
 {
-    float timer;
+    //float timer;
 
     Transform player;
 
@@ -13,7 +13,7 @@ public class IdleState : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        timer = 0;
+        //timer = 0;
 
         player = GameObject.FindGameObjectWithTag("Player").transform;
     }

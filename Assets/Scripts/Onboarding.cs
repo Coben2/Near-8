@@ -43,7 +43,7 @@ public class Onboarding : MonoBehaviour
             text3.SetActive(true);
             arrow3.SetActive(true);
         }
-        if (Countdown <= 0)
+        if (Countdown <= 1)
         {
             gotIt.SetActive(true);
         }

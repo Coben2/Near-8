@@ -550,5 +550,5 @@ Shader "Enviro/Standard/SkyboxSimple"
 			}
 
     }
-    FallBack "None"
+    FallBack Off
 }

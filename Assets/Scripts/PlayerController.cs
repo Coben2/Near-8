@@ -6,8 +6,8 @@ public class PlayerController : MonoBehaviour
 {
     //Movement
     [SerializeField] private float speed = 3.3f;
-    private float rotSpeed = 90f;
-    private Vector3 moveDirection = Vector3.zero;
+    //private float rotSpeed = 90f;
+    //private Vector3 moveDirection = Vector3.zero;
     [SerializeField] private CharacterController controller;
 
     //Rotation
