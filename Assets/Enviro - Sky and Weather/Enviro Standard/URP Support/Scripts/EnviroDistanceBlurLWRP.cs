@@ -30,27 +30,29 @@ namespace UnityEngine.Rendering.LWRP
         }
  
         public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
-        {
+        { 
             if (renderingData.cameraData.camera.cameraType == CameraType.Preview || renderingData.cameraData.camera.cameraType == CameraType.Reflection)
                 return;
 
             myCam = renderingData.cameraData.camera;
 
             if (EnviroSkyMgr.instance != null && EnviroSky.instance != null && EnviroSkyMgr.instance.useDistanceBlur)
-            {
+            { 
+                if(EnviroSky.instance.RenderEnviroOnThisCam(renderingData.cameraData.camera) == false)
+                    return;
 
                 if (renderingData.cameraData.isSceneViewCamera && !EnviroSky.instance.showDistanceBlurInEditor)
                     return;
 
-                var src = renderer.cameraColorTarget;
+               // var src = renderer.cameraColorTarget;
                 var dest = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
                 CreateMaterialsAndTextures();
-
+ 
                 if(blitPass == null)
                    blitPass = new EnviroDistanceBlurPass(UnityEngine.Rendering.Universal.RenderPassEvent.BeforeRenderingTransparents, postProcessMat, distributionTexture);
                 
-                blitPass.Setup(myCam, src, dest);
+                blitPass.Setup(myCam, renderer, dest);
                 renderer.EnqueuePass(blitPass);
             }
         }

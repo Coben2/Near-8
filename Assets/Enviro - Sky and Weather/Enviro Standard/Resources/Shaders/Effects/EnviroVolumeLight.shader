@@ -115,6 +115,11 @@ Shader "Enviro/Standard/VolumeLight"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 				float2 uv = i.uv.xy / i.uv.w;
 
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				if(unity_StereoEyeIndex != _Eye)
+				   return float4(0,0,0,0);
+#endif
+
 				// read depth and reconstruct world position
 				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(uv,_CameraDepthTexture_ST));
 
@@ -145,7 +150,7 @@ Shader "Enviro/Standard/VolumeLight"
 
 			CGPROGRAM
 			#pragma vertex vert
-			#pragma fragment fragPointInside
+			#pragma fragment fragSpotInside
 			#pragma target 3.5
 			#pragma exclude_renderers d3d9 gles
 
@@ -160,10 +165,15 @@ Shader "Enviro/Standard/VolumeLight"
 			#define SHADOWS_NATIVE
 			#endif
 
-			fixed4 fragPointInside(v2f i) : SV_Target
+			fixed4 fragSpotInside(v2f i) : SV_Target
 			{
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 				float2 uv = i.uv.xy / i.uv.w;
+
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				if(unity_StereoEyeIndex != _Eye)
+				   return float4(0,0,0,0);
+#endif
 
 				// read depth and reconstruct world position
 				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(uv,_CameraDepthTexture_ST));
@@ -212,6 +222,11 @@ Shader "Enviro/Standard/VolumeLight"
 			{
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 				float2 uv = i.uv.xy / i.uv.w;
+
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				if(unity_StereoEyeIndex != _Eye)
+				   return float4(0,0,0,0);
+#endif
 
 				// read depth and reconstruct world position
 				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(uv,_CameraDepthTexture_ST));
@@ -281,6 +296,11 @@ Shader "Enviro/Standard/VolumeLight"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 				float2 uv = i.uv.xy / i.uv.w;
 
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
+				if(unity_StereoEyeIndex != _Eye)
+				   return float4(0,0,0,0);
+#endif
+
 				// read depth and reconstruct world position
 				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(uv,_CameraDepthTexture_ST));
 
@@ -343,15 +363,16 @@ Shader "Enviro/Standard/VolumeLight"
 			v2f vertDir(appdata_img v)
 			{
 				v2f o;
-				UNITY_SETUP_INSTANCE_ID(v); //Insert
-				UNITY_INITIALIZE_OUTPUT(v2f, o); //Insert
-				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); //Ins
-				o.pos = v.vertex * float4(2,2,1,1) + float4(-1,-1,0,0);
+				UNITY_SETUP_INSTANCE_ID(v); 
+				UNITY_INITIALIZE_OUTPUT(v2f, o); 
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+				o.pos = UnityObjectToClipPos(v.vertex);
+				//o.pos = v.vertex * float4(2,2,1,1) + float4(-1,-1,0,0);
 				o.uv.xy = v.texcoord.xy;
 #if UNITY_UV_STARTS_AT_TOP
-				o.uv.y = 1.0f - o.uv.y; //blit flips the uv for some reason
+				//o.uv.y = 1.0f - o.uv.y; //blit flips the uv for some reason
 #endif
-				return o;
+				return o; 
 			}
 
 			fixed4 fragDir(v2f i) : SV_Target
@@ -359,16 +380,20 @@ Shader "Enviro/Standard/VolumeLight"
 				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
 				float2 uv = i.uv.xy;
 
-				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(uv, _CameraDepthTexture_ST));
+				//return lerp(float4(1,0,0,1),float4(0,0,1,1),unity_StereoEyeIndex);
+ 
+
+				float depth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, uv);
 
 				float4x4 proj, eyeToWorld;
+
 				if (unity_StereoEyeIndex == 0)
 				{
 					proj = _LeftViewFromScreen;
 					eyeToWorld = _LeftWorldFromView;
 				}
 				else
-				{
+				{ 
 					proj = _RightViewFromScreen;
 					eyeToWorld = _RightWorldFromView;
 				}
@@ -390,7 +415,6 @@ Shader "Enviro/Standard/VolumeLight"
 				float3 rayStart = _WorldSpaceCameraPos;
 				float3 rayDir = wpos - _WorldSpaceCameraPos;
 				
-				//Problem with VR?! Need more tests
 				//rayDir *= linearDepth;
 
 				float rayLength = length(rayDir);

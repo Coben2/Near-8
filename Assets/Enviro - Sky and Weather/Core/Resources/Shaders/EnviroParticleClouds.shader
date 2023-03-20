@@ -9,7 +9,7 @@ Category {
 	Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" "PreviewType"="Plane" }
 	Blend SrcAlpha OneMinusSrcAlpha
 	ColorMask RGB
-	Cull Off Lighting Off ZWrite Off
+	Cull Off ZWrite Off
 	
 
 	SubShader {
@@ -94,13 +94,13 @@ Category {
 				sunDir.y = saturate(clamp(1.0 - _SunDir.y, 0.0, 0.5));
 				fogClr = ComputeScattering(normalize(wsDir), sunDir);
 
-#if ENVIROVOLUMELIGHT
+#if ENVIROVOLUMELIGHT 
 
 #if UNITY_SINGLE_PASS_STEREO
 				float4 scaleOffset = unity_StereoScaleOffset[unity_StereoEyeIndex];
 				uv = (uv - scaleOffset.zw) / scaleOffset.xy;
 #endif
-				float4 volumeLighting = tex2D(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(uv));
+				float4 volumeLighting = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(uv));
 				volumeLighting *= _EnviroParams.x;
 				final = lerp(lerp(fogClr, fogClr + volumeLighting, _EnviroVolumeDensity), lerp(clr, clr + volumeLighting, _EnviroVolumeDensity), fogFacSky);
 #else
@@ -127,4 +127,5 @@ Category {
 		}
 	}	
 }
+FallBack "Legacy Shader/Particles/Alpha Blended"
 }

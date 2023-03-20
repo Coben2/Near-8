@@ -152,7 +152,6 @@ Shader "Enviro/Lite/SkyboxSimple"
 					if (y < 50.0 && y > 5.0)
 						skyColor = _HorizonColor;
 
-
 					skyColor = skyColor + (1 - skyColor.a) * nightSky;
 			
 					half eyeCos = dot(_SunDir, ray);

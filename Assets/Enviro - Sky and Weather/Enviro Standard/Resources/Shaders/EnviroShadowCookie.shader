@@ -42,10 +42,19 @@ Shader "Enviro/Standard/ShadowCookie"
 			uniform sampler2D _MainTex;
 			uniform float _shadowIntensity;
 			uniform int _shadowMode;
+			uniform float _Rotation;
+
+			float2 rotateUV(float2 uv, float rotation)
+			{
+				float s = sin ( rotation );
+				float c = cos ( rotation );
+				float2x2 rotationMatrix = float2x2( c, -s, s, c);
+				return mul ( uv - 0.5, rotationMatrix ) + 0.5;
+			}
 
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 col = 1 - (tex2D(_MainTex, i.uv) * _shadowIntensity);
+				fixed4 col = 1 - (tex2D(_MainTex, rotateUV(i.uv,_Rotation)) * _shadowIntensity);
 				return float4(col.r,col.r,col.r,col.r);
 			}
 			ENDCG

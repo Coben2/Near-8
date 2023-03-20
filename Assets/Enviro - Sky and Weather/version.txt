@@ -1,4 +1,4 @@
-Enviro - Sky and Weather 2.3.1
+Enviro - Sky and Weather 2.4.2
 
 Thanks for buying Enviro! 
 
@@ -647,4 +647,56 @@ v 2.3.3
 	* Fixed missing shadow intensity curve in Enviro Sky inspector.
 	* Fixed curl noise option in Volumetric Clouds.
 
-	
+v 2.4.0
+	* Added HDRP support for standard and lite:
+	    Currently no HDRP VR and MSAA support for Enviro post processing effects.
+		Depth Blending for volumetric clouds will be added very soon in 2.4.1
+	* Added option to update the default environment reflection cubemap with the texture of global reflection probe. (For instanced indirect rendered material reflections)
+	* Added a new list for additional cameras for URP and HDRP. You need to add your cameras here if your want to render Enviro effects on these.
+	* Added Enviro clouds shadow cookies for latest URP versions.
+	* Fixed URP 10+ singlepass instanced rendering.(grey eye)
+	* Fixed multiple issues with volumetric ligting singlepass instanced rendering.
+	* Fixed volumetric lighting may dissapear when no shadows are rendered.
+	* Fixed custom mesh weather zone gizmos.
+	* Fixed cirrus clouds alpha in Unity 2020+.
+	* Fixed warnings related to Enviro in URP and HDRP.
+	* Fixed wetness update for microsplat integration.
+	* Fixed OnDay/OnNight event not triggered on start.
+	* Fixed issue with duplicates of SFX Effects are created when instances get deactivated and activated again.
+	* Fixed possible stuttering in clouds movement.
+	* Fixed additional satellites render in URP.
+	* Fixed bad performance for Aura 2 integration code in larger scenes.
+	* New sample scenes for all render pipelines.
+
+v 2.4.0a
+
+	* Fixed distance blur effect in URP.
+	* Improved code in HDRP support that should result in better performance in big scenes.
+
+v 2.4.1
+
+	* Fixed possible errors that could break builds.
+	* Fixed possible issue with hourly time event on start. (It should trigger the event now correctly in all cases)
+	* Fixed issue with default environment reflection not updating when using don't destroy on load. 
+	* Fixed issue with simple sky mode in URP.
+	* Fixed issue with volumetric clouds not rendering correctly in scene and reflection cameras in URP SPI VR.
+	* Fixed compile issue in URP 11 and cloud shadow light cookie.
+	* Fixed small issue in built-in standard sample scene.
+
+v 2.4.2
+
+	* Fixed render features for URP 13+.
+	* Fixed possible errors when no thunder sfx audio is assigned. (Thanks to fendercodes)
+	* Fixed possible issue where fog will flip the image in rare conditions.
+	* Fixed issues with Lightshafts effect in URP. 
+	* Fixed particle clouds shader in URP 12+.
+	* Fixed issue with volumetric clouds bilateral upsampling in URP.
+	* Fixed multiple issues with URP multi pass VR rendering.
+	* Fixed rare issue where sky HDRP volume modules might lost after editor restart.
+	* Fixed issue with rain splash effect may be rendered underneath the collider.
+	* Fixed cubemap baking not includes Enviro effect in URP and HDRP.
+	* Fixed shader build issue on xbox platform.
+	* Fixed issue where multiple custom timesliced reflection probe updates could be triggered and get executed where only one is needed.
+	* Fixed issue for volumetric clouds with dynamic resolution in HDRP.
+	* Improvement for custom rendered reflection probe "convolution". Still not correct and very hacky, but should be a step nearer to unity realtime reflection probes.
+	* Improved directional volumetric light to not shine through objects in certain situation and settings.

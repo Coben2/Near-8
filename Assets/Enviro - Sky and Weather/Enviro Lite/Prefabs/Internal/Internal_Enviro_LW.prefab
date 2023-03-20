@@ -173,11 +173,11 @@ MonoBehaviour:
   useTimeSlicing: 1
   renderCam: {fileID: 0}
   useEnviroEffects: 1
-  rendering: 0
   myProbe: {fileID: 0}
   customRendering: 0
   customCloudsQuality: {fileID: 0}
   useFog: 0
+  bakingCam: {fileID: 0}
 --- !u!1 &1351718279745974
 GameObject:
   m_ObjectHideFlags: 0
@@ -583,14 +583,59 @@ MonoBehaviour:
       m_RotationOrder: 4
     lightColorTemperature:
       serializedVersion: 2
-      m_Curve: []
+      m_Curve:
+      - serializedVersion: 3
+        time: 0.0042874366
+        value: 10002.518
+        inSlope: -65.305664
+        outSlope: -65.305664
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.38720584
+        value: 9894.908
+        inSlope: -855.4398
+        outSlope: -855.4398
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.5125905
+        value: 3024.4595
+        inSlope: 926.3545
+        outSlope: 926.3545
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 0.6485079
+        value: 4931.462
+        inSlope: 4445.381
+        outSlope: 4445.381
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
+      - serializedVersion: 3
+        time: 1.0041809
+        value: 5500
+        inSlope: 93.2233
+        outSlope: 93.2233
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0.33333334
+        outWeight: 0.33333334
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
     lightColorTint:
       serializedVersion: 2
-      key0: {r: 1, g: 1, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
+      key0: {r: 0.7783019, g: 0.8559979, b: 1, a: 1}
+      key1: {r: 1, g: 0.945918, b: 0.8726415, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -668,6 +713,35 @@ MonoBehaviour:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
+    ambientColorMod:
+      serializedVersion: 2
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0, g: 0, b: 0, a: 0}
+      key3: {r: 0, g: 0, b: 0, a: 0}
+      key4: {r: 0, g: 0, b: 0, a: 0}
+      key5: {r: 0, g: 0, b: 0, a: 0}
+      key6: {r: 0, g: 0, b: 0, a: 0}
+      key7: {r: 0, g: 0, b: 0, a: 0}
+      ctime0: 0
+      ctime1: 65535
+      ctime2: 0
+      ctime3: 0
+      ctime4: 0
+      ctime5: 0
+      ctime6: 0
+      ctime7: 0
+      atime0: 0
+      atime1: 65535
+      atime2: 0
+      atime3: 0
+      atime4: 0
+      atime5: 0
+      atime6: 0
+      atime7: 0
+      m_Mode: 0
+      m_NumColorKeys: 2
+      m_NumAlphaKeys: 2
     indirectLightingUpdateMode: 0
   volumeLightSettings:
     Resolution: 2
@@ -692,7 +766,7 @@ MonoBehaviour:
     skyboxModeLW: 0
     customSkyboxMaterial: {fileID: 0}
     customSkyboxColor: {r: 0, g: 0, b: 0, a: 0}
-    blackGroundMode: 1
+    blackGroundMode: 0
     waveLength: {x: 540, y: 496, z: 437}
     rayleigh: 5.15
     turbidity: 1
@@ -1165,15 +1239,16 @@ MonoBehaviour:
     globalReflectionUseFog: 0
     globalReflectionTimeSlicing: 1
     globalReflectionsUpdateOnGameTime: 1
-    globalReflectionsUpdateOnPosition: 1
+    globalReflectionsUpdateOnPosition: 0
     globalReflectionsIntensity: 0.5
     globalReflectionsTimeTreshold: 0.025
     globalReflectionsPositionTreshold: 0.25
     globalReflectionsScale: 1
-    globalReflectionResolution: 4
+    globalReflectionResolution: 3
     globalReflectionLayers:
       serializedVersion: 2
       m_Bits: 0
+    updateDefaultEnvironmentReflections: 1
     reflectionCloudsQuality: {fileID: 0}
   cloudsSettings:
     cloudsQualitySettings:
@@ -1579,7 +1654,7 @@ MonoBehaviour:
     heightFog: 1
     height: 50
     heightFogIntensity: 1
-    heightDensity: 0.49988678
+    heightDensity: 0
     noiseIntensity: 1
     noiseIntensityOffset: 0.3
     noiseScale: 0.001
@@ -1650,7 +1725,7 @@ MonoBehaviour:
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
   lightshaftsSettings:
-    resolution: 0
+    resolution: 1
     screenBlendMode: 0
     useDepthTexture: 1
     lightShaftsColorSun:
@@ -1713,18 +1788,18 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     thresholdColorSun:
       serializedVersion: 2
-      key0: {r: 0.11372549, g: 0.11372549, b: 0.11372549, a: 1}
-      key1: {r: 0.11372549, g: 0.11372549, b: 0.11372549, a: 1}
-      key2: {r: 0.6509804, g: 0.6509804, b: 0.6509804, a: 0}
-      key3: {r: 0.8156863, g: 0.8156863, b: 0.8156863, a: 0}
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0.8156863, g: 0.8156863, b: 0.8156863, a: 0}
+      key3: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 0}
       key4: {r: 0.7647059, g: 0.7647059, b: 0.7647059, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 28180
-      ctime2: 35389
-      ctime3: 42598
+      ctime1: 28876
+      ctime2: 32665
+      ctime3: 65535
       ctime4: 65535
       ctime5: 0
       ctime6: 0
@@ -1738,22 +1813,22 @@ MonoBehaviour:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_NumColorKeys: 5
+      m_NumColorKeys: 4
       m_NumAlphaKeys: 2
     thresholdColorMoon:
       serializedVersion: 2
-      key0: {r: 0.17647058, g: 0.17647058, b: 0.17647058, a: 1}
-      key1: {r: 0.125, g: 0.125, b: 0.125, a: 1}
-      key2: {r: 0, g: 0, b: 0, a: 0}
-      key3: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
+      key2: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 0}
+      key3: {r: 0.6886792, g: 0.6886792, b: 0.6886792, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
       key6: {r: 0, g: 0, b: 0, a: 0}
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
-      ctime1: 65535
-      ctime2: 0
-      ctime3: 0
+      ctime1: 29184
+      ctime2: 31948
+      ctime3: 65535
       ctime4: 0
       ctime5: 0
       ctime6: 0
@@ -1767,7 +1842,7 @@ MonoBehaviour:
       atime6: 0
       atime7: 0
       m_Mode: 0
-      m_NumColorKeys: 2
+      m_NumColorKeys: 4
       m_NumAlphaKeys: 2
     blurRadius: 6
     intensity: 0.6
@@ -2011,12 +2086,16 @@ MonoBehaviour:
   currentWeatherLightMod: {r: 1, g: 1, b: 1, a: 0}
   currentWeatherFogMod: {r: 0.4971195, g: 0.59361964, b: 0.78692967, a: 0.31024146}
   customMoonPhase: 0
+  globalVolumeLightIntensity: 0
   MainLight: {fileID: 0}
   AdditionalLight: {fileID: 0}
   MoonTransform: {fileID: 4083867372393754}
   lastAmbientSkyUpdate: 0
   lastRelfectionUpdate: 17677716
   lastRelfectionPositionUpdate: {x: 0, y: 0, z: 0}
+  defaultSkyReflectionTex: {fileID: 0}
+  directLightIntensityMod: 1
+  ambientLightIntensityMod: 1
   EffectsHolder: {fileID: 0}
   lightningEffect: {fileID: 0}
   GameTime:
@@ -2063,6 +2142,7 @@ MonoBehaviour:
     lastActiveWeatherPrefab: {fileID: 0}
     lastActiveWeatherPreset: {fileID: 0}
     VFXHolder: {fileID: 0}
+    SFXHolder: {fileID: 0}
     wetness: 0
     curWetness: 0
     snowStrength: 0
@@ -2113,12 +2193,13 @@ MonoBehaviour:
   currentSceneExposureMod: 1
   currentSkyExposureMod: 1
   currentLightIntensityMod: 1
+  additionalCameras: []
   useParticleClouds: 0
   usePostEffectFog: 1
   showFogInEditor: 1
   EnviroSkyRender: {fileID: 0}
   skyMat: {fileID: 0}
-  showSettings: 1
+  showSettings: 0
 --- !u!114 &114827216854417256
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2247,12 +2328,14 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1722500335479490}
   m_Enabled: 0
-  serializedVersion: 8
+  serializedVersion: 10
   m_Type: 1
+  m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
+  m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
@@ -2262,6 +2345,24 @@ Light:
     m_Bias: 0.05
     m_NormalBias: 0.4
     m_NearPlane: 0.2
+    m_CullingMatrixOverride:
+      e00: 1
+      e01: 0
+      e02: 0
+      e03: 0
+      e10: 0
+      e11: 1
+      e12: 0
+      e13: 0
+      e20: 0
+      e21: 0
+      e22: 1
+      e23: 0
+      e30: 0
+      e31: 0
+      e32: 0
+      e33: 1
+    m_UseCullingMatrixOverride: 0
   m_Cookie: {fileID: 0}
   m_DrawHalo: 0
   m_Flare: {fileID: 0}
@@ -2269,12 +2370,15 @@ Light:
   m_CullingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
   m_AreaSize: {x: 1, y: 1}
   m_BounceIntensity: 1
   m_ColorTemperature: 6570
   m_UseColorTemperature: 0
+  m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!114 &114415874642459624
@@ -3541,6 +3645,7 @@ ParticleSystem:
         m_NumColorKeys: 2
         m_NumAlphaKeys: 2
   UVModule:
+    serializedVersion: 2
     enabled: 0
     mode: 0
     timeMode: 0
@@ -3658,7 +3763,7 @@ ParticleSystem:
     rowIndex: 0
     cycles: 1
     uvChannelMask: -1
-    randomRow: 1
+    rowMode: 1
     sprites:
     - sprite: {fileID: 0}
     flipU: 0
@@ -4451,8 +4556,61 @@ ParticleSystem:
     inWorldSpace: 0
     randomizePerFrame: 0
   ExternalForcesModule:
+    serializedVersion: 2
     enabled: 1
-    multiplier: 1
+    multiplierCurve:
+      serializedVersion: 2
+      minMaxState: 0
+      scalar: 1
+      minScalar: 1
+      maxCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      minCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
     influenceFilter: 0
     influenceMask:
       serializedVersion: 2
@@ -6760,6 +6918,7 @@ ParticleSystemRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -6772,6 +6931,7 @@ ParticleSystemRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -8104,6 +8264,7 @@ ParticleSystem:
         m_NumColorKeys: 2
         m_NumAlphaKeys: 2
   UVModule:
+    serializedVersion: 2
     enabled: 0
     mode: 0
     timeMode: 0
@@ -8221,7 +8382,7 @@ ParticleSystem:
     rowIndex: 0
     cycles: 1
     uvChannelMask: -1
-    randomRow: 1
+    rowMode: 1
     sprites:
     - sprite: {fileID: 0}
     flipU: 0
@@ -9014,8 +9175,61 @@ ParticleSystem:
     inWorldSpace: 0
     randomizePerFrame: 0
   ExternalForcesModule:
+    serializedVersion: 2
     enabled: 1
-    multiplier: 1
+    multiplierCurve:
+      serializedVersion: 2
+      minMaxState: 0
+      scalar: 1
+      minScalar: 1
+      maxCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
+      minCurve:
+        serializedVersion: 2
+        m_Curve:
+        - serializedVersion: 3
+          time: 0
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        - serializedVersion: 3
+          time: 1
+          value: 1
+          inSlope: 0
+          outSlope: 0
+          tangentMode: 0
+          weightedMode: 0
+          inWeight: 0.33333334
+          outWeight: 0.33333334
+        m_PreInfinity: 2
+        m_PostInfinity: 2
+        m_RotationOrder: 4
     influenceFilter: 0
     influenceMask:
       serializedVersion: 2
@@ -11323,6 +11537,7 @@ ParticleSystemRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 0
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -11335,6 +11550,7 @@ ParticleSystemRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0

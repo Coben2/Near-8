@@ -2,8 +2,8 @@
 {
 	Properties
 	{
-		_MainTex("Base (RGB)", any) = "white" {}
-	_CloudsTex("Clouds (RGB)", any) = "white" {}
+	//	_MainTex("Base (RGB)", any) = "white" {}
+		_CloudsTex("Clouds (RGB)", any) = "white" {}
 	}
 		SubShader
 	{
@@ -20,7 +20,8 @@
 	#include "UnityCG.cginc"
 	#pragma exclude_renderers gles 
 	#pragma multi_compile __ ENVIRO_DEPTHBLENDING
-
+	#pragma multi_compile __ ENVIROURP
+	
 	UNITY_DECLARE_SCREENSPACE_TEXTURE(_MainTex);
 	uniform half4 _MainTex_ST;
 	uniform half4 _MainTex_TexelSize;
@@ -65,8 +66,15 @@
 		UNITY_SETUP_INSTANCE_ID(v); //Insert
 		UNITY_INITIALIZE_OUTPUT(v2f, o); //Insert
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); //Insert
-
-		o.position = UnityObjectToClipPos(v.vertex);
+#if defined(ENVIROURP)
+	o.position = float4(v.vertex.xyz,1.0);
+#if UNITY_UV_STARTS_AT_TOP
+    o.position.y *= -1;
+#endif
+#else
+	o.position = UnityObjectToClipPos(v.vertex);
+#endif
+	
 		o.uv = v.texcoord;
 
 #if UNITY_UV_STARTS_AT_TOP
@@ -94,9 +102,9 @@
 #ifndef ENVIRO_DEPTHBLENDING
 
 #if UNITY_UV_STARTS_AT_TOP
-	float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(i.uv1.xy, _CameraDepthTexture_ST));
-#else
-	float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoScreenSpaceUVAdjust(i.uv.xy, _CameraDepthTexture_ST));
+	float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv1.xy);
+#else 
+	float depthSample = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv.xy);
 #endif
 
 	depthSample = Linear01Depth(depthSample);
@@ -114,7 +122,7 @@
 
 		float4 cloud;
 
-		if (currentFrame == _FrameNumber)
+		if (currentFrame == _FrameNumber) 
 		{
 			cloud = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_SubFrame, UnityStereoScreenSpaceUVAdjust(uv2, _MainTex_ST));
 		}
@@ -123,7 +131,6 @@
 			float4 reprojection;
 			float4 pos = float4(i.uv * 2.0 - 1.0, 1.0, 1.0);
 
-#if UNITY_SINGLE_PASS_STEREO || ENVIRO_SINGLEPASSINSTANCED
 			if (unity_StereoEyeIndex == 0)
 			{
 				pos = mul(_InverseProjection, pos);
@@ -142,14 +149,6 @@
 
 				reprojection = mul(_ProjectionSPVR, pos);
 			}
-#else
-			pos = mul(_InverseProjection, pos);
-			pos = pos / pos.w;
-			pos.xyz = mul((float3x3)_InverseRotation, pos.xyz);
-			pos.xyz = mul((float3x3)_PreviousRotation, pos.xyz);
-
-			reprojection = mul(_Projection, pos);
-#endif
 
 			if (reprojection.y < 0.0 || reprojection.y > 1.0 || reprojection.x < 0.0 || reprojection.x > 1.0)
 			{

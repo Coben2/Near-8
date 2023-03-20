@@ -18,10 +18,11 @@ namespace UnityEngine.Rendering.LWRP
         public Material blitMat = null;
         private Material compose;
         private Material downsample;
+        private Material blitThrough;
 
         public FilterMode filterMode { get; set; }
 
-        private RenderTargetIdentifier source { get; set; }
+        private UnityEngine.Rendering.Universal.ScriptableRenderer renderer { get; set; }
         private UnityEngine.Rendering.Universal.RenderTargetHandle destination { get; set; }
 
 
@@ -55,6 +56,35 @@ namespace UnityEngine.Rendering.LWRP
         UnityEngine.Rendering.Universal.RenderTargetHandle m_TemporaryColorTexture;
         string m_ProfilerTag;
 
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat, int pass)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat,0,pass);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target)
+        {
+            if(blitThrough == null)
+                blitThrough = new Material(Shader.Find("Hidden/EnviroBlitThrough"));
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, blitThrough);
+        }
+
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            ConfigureTarget(renderer.cameraColorTarget);
+            ConfigureInput(UnityEngine.Rendering.Universal.ScriptableRenderPassInput.Depth);
+        }
+
         /// <summary>
         /// Create the CopyColorPass
         /// </summary>
@@ -78,9 +108,9 @@ namespace UnityEngine.Rendering.LWRP
         /// </summary>
         /// <param name="source">Source Render Target</param>
         /// <param name="destination">Destination Render Target</param>
-        public void Setup(RenderTargetIdentifier source, UnityEngine.Rendering.Universal.RenderTargetHandle destination, Camera cam)
+        public void Setup(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, UnityEngine.Rendering.Universal.RenderTargetHandle destination, Camera cam)
         {
-            this.source = source;
+            this.renderer = renderer;
             this.destination = destination;
             this.myCam = cam;
         }
@@ -104,46 +134,36 @@ namespace UnityEngine.Rendering.LWRP
 
             cloudsMat.SetVector("_CameraPosition", myCam.transform.position - EnviroSky.instance.floatingPointOriginMod);
 
-           // projection = renderingData.cameraData.GetProjectionMatrix();
-           // Matrix4x4 inverseProjection = projection.inverse;
-           // cloudsMat.SetMatrix("_InverseProjection", inverseProjection);
-           // inverseRotation = renderingData.cameraData.GetViewMatrix().inverse;
-           // cloudsMat.SetMatrix("_InverseRotation", inverseRotation);    
-
-            switch (myCam.stereoActiveEye)
+            if(UnityEngine.XR.XRSettings.enabled && EnviroSky.instance.singlePassInstancedVR && renderingData.cameraData.cameraType == CameraType.Game && Application.isPlaying)
             {
-                case Camera.MonoOrStereoscopicEye.Mono:
+                projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+                cloudsMat.SetMatrix("_InverseProjection", projection.inverse);
+                inverseRotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
+                cloudsMat.SetMatrix("_InverseRotation", inverseRotation);
+
+                Matrix4x4 inverseProjectionRightSP = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right).inverse;
+                cloudsMat.SetMatrix("_InverseProjection_SP", inverseProjectionRightSP);
+                inverseRotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
+                cloudsMat.SetMatrix("_InverseRotation_SP", inverseRotationSPVR);
+            }
+            else
+            {
+                if(UnityEngine.XR.XRSettings.enabled)
+                {
+                    projection = renderingData.cameraData.GetProjectionMatrix();
+                    Matrix4x4 inverseProjection = projection.inverse;
+                    cloudsMat.SetMatrix("_InverseProjection", inverseProjection);
+                    inverseRotation = myCam.cameraToWorldMatrix;   
+                    cloudsMat.SetMatrix("_InverseRotation", inverseRotation);  
+                }
+                else
+                {
                     projection = myCam.projectionMatrix;
                     Matrix4x4 inverseProjection = projection.inverse;
                     cloudsMat.SetMatrix("_InverseProjection", inverseProjection);
-                    inverseRotation = myCam.cameraToWorldMatrix;
-                    cloudsMat.SetMatrix("_InverseRotation", inverseRotation);            
-                    break;
-
-                case Camera.MonoOrStereoscopicEye.Left:
-                    projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
-                    Matrix4x4 inverseProjectionLeft = projection.inverse;
-                    cloudsMat.SetMatrix("_InverseProjection", inverseProjectionLeft);
-                    inverseRotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
-                    cloudsMat.SetMatrix("_InverseRotation", inverseRotation);
-
-                    if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                    {
-                        Matrix4x4 inverseProjectionRightSP = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right).inverse;
-                        cloudsMat.SetMatrix("_InverseProjection_SP", inverseProjectionRightSP);
-
-                        inverseRotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
-                        cloudsMat.SetMatrix("_InverseRotation_SP", inverseRotationSPVR);
-                    }
-                    break;
-
-                case Camera.MonoOrStereoscopicEye.Right:
-                    projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
-                    Matrix4x4 inverseProjectionRight = projection.inverse;
-                    cloudsMat.SetMatrix("_InverseProjection_SP", inverseProjectionRight);
-                    inverseRotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
-                    cloudsMat.SetMatrix("_InverseRotation_SP", inverseRotation);
-                    break;
+                    inverseRotation = myCam.cameraToWorldMatrix; 
+                    cloudsMat.SetMatrix("_InverseRotation", inverseRotation);  
+                }
             }
 
             //Weather Map
@@ -233,7 +253,7 @@ namespace UnityEngine.Rendering.LWRP
             blitMat.SetMatrix("_InverseRotation", inverseRotation);
             blitMat.SetMatrix("_InverseProjection", inverseProjection);
 
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
+            if (UnityEngine.XR.XRSettings.enabled)
             {
                 Matrix4x4 inverseProjectionSPVR = projectionSPVR.inverse;
                 blitMat.SetMatrix("_PreviousRotationSPVR", previousRotationSPVR);
@@ -241,9 +261,6 @@ namespace UnityEngine.Rendering.LWRP
                 blitMat.SetMatrix("_InverseRotationSPVR", inverseRotationSPVR);
                 blitMat.SetMatrix("_InverseProjectionSPVR", inverseProjectionSPVR);
             }
-
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassInstancedVR)
-                blitMat.EnableKeyword("ENVIRO_SINGLEPASSINSTANCED");
 
             blitMat.SetFloat("_FrameNumber", subFrameNumber);
             blitMat.SetFloat("_ReprojectionPixelSize", reprojectionPixelSize);
@@ -266,7 +283,8 @@ namespace UnityEngine.Rendering.LWRP
             //Graphics.Blit(src, lowDepth, mat);
             RenderTargetIdentifier srcID = new RenderTargetIdentifier(src);
             RenderTargetIdentifier lowDepthID = new RenderTargetIdentifier(lowDepth);
-            Blit(cmd,srcID,lowDepthID,mat);
+            mat.EnableKeyword("ENVIROURP");
+            CustomBlit(cmd,srcID,lowDepthID,mat);
             return lowDepth;
         }
 
@@ -341,27 +359,42 @@ namespace UnityEngine.Rendering.LWRP
         }
         private void StartFrame(UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
-            textureDimensionChanged = UpdateFrameDimensions();
+            textureDimensionChanged = UpdateFrameDimensions(renderingData.cameraData.cameraTargetDescriptor);
 
             switch (myCam.stereoActiveEye)
             {
-                case Camera.MonoOrStereoscopicEye.Mono:
-                    projection = myCam.projectionMatrix;
-                    rotation = myCam.worldToCameraMatrix;
-                    inverseRotation = myCam.cameraToWorldMatrix;
-                    break;
+                case Camera.MonoOrStereoscopicEye.Mono: 
+                
+                    if(UnityEngine.XR.XRSettings.enabled && renderingData.cameraData.cameraType == CameraType.Game && Application.isPlaying)
+                    {
+                        projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+                        rotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left);
+                        inverseRotation = rotation.inverse;
+
+                        projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                        rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
+                        inverseRotationSPVR = rotationSPVR.inverse;
+                    } 
+                    else
+                    {
+                        projection = myCam.projectionMatrix;
+                        rotation = myCam.worldToCameraMatrix;
+                        inverseRotation = myCam.cameraToWorldMatrix;
+
+                        projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                        rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
+                        inverseRotationSPVR = myCam.cameraToWorldMatrix;
+                    }
+                break;
 
                 case Camera.MonoOrStereoscopicEye.Left:
                     projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
                     rotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left);
                     inverseRotation = rotation.inverse;
+                    projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                    rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
+                    inverseRotationSPVR = rotationSPVR.inverse;
 
-                    if (EnviroSky.instance.singlePassVR)
-                    {
-                        projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
-                        rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
-                        inverseRotationSPVR = rotationSPVR.inverse;
-                    }
                     break;
 
                 case Camera.MonoOrStereoscopicEye.Right:
@@ -385,17 +418,16 @@ namespace UnityEngine.Rendering.LWRP
             renderingCounter++;
 
             previousRotation = rotation;
-            //if (EnviroSky.instance.singlePassVR)
             previousRotationSPVR = rotationSPVR;
 
             int reproSize = reprojectionPixelSize * reprojectionPixelSize;
             subFrameNumber = frameList[renderingCounter % reproSize];
         }
-        private bool UpdateFrameDimensions()
+        private bool UpdateFrameDimensions(RenderTextureDescriptor descriptor)
         {
             //Add downsampling
-            int newFrameWidth = myCam.pixelWidth / EnviroSky.instance.cloudsSettings.cloudsQualitySettings.cloudsRenderResolution;
-            int newFrameHeight = myCam.pixelHeight / EnviroSky.instance.cloudsSettings.cloudsQualitySettings.cloudsRenderResolution;
+            int newFrameWidth = descriptor.width / EnviroSky.instance.cloudsSettings.cloudsQualitySettings.cloudsRenderResolution;
+            int newFrameHeight = descriptor.height / EnviroSky.instance.cloudsSettings.cloudsQualitySettings.cloudsRenderResolution;
 
             //Reset temporal reprojection size when zero. Needed if SkyManager starts deactivated
             if (EnviroSky.instance != null && reprojectionPixelSize == 0)
@@ -460,20 +492,20 @@ namespace UnityEngine.Rendering.LWRP
         }
 #endregion
 
-        void UpdateMatrix(UnityEngine.Rendering.Universal.RenderingData renderingData)
+        void UpdateMatrix(UnityEngine.Rendering.Universal.RenderingData renderingData, Material mat)
         {
             if (UnityEngine.XR.XRSettings.enabled)
             {
                 // Both stereo eye inverse view matrices
-                Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix().inverse;
-                Matrix4x4 right_world_from_view = renderingData.cameraData.GetViewMatrix().inverse;
+                Matrix4x4 left_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
+                Matrix4x4 right_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
 
                 // Both stereo eye inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
-                Matrix4x4 left_screen_from_view = renderingData.cameraData.GetProjectionMatrix();
-                Matrix4x4 right_screen_from_view = renderingData.cameraData.GetProjectionMatrix();
-                Matrix4x4 left_view_from_screen = renderingData.cameraData.GetGPUProjectionMatrix().inverse;
-                Matrix4x4 right_view_from_screen = renderingData.cameraData.GetGPUProjectionMatrix().inverse;
-
+                Matrix4x4 left_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+                Matrix4x4 right_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(left_screen_from_view, true).inverse;
+                Matrix4x4 right_view_from_screen = GL.GetGPUProjectionMatrix(right_screen_from_view, true).inverse;
+ 
                 // Negate [1,1] to reflect Unity's CBuffer state
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3)
                 {
@@ -481,27 +513,26 @@ namespace UnityEngine.Rendering.LWRP
                     right_view_from_screen[1, 1] *= -1;
                 }
 
-                Shader.SetGlobalMatrix("_LeftWorldFromView", left_world_from_view);
-                Shader.SetGlobalMatrix("_RightWorldFromView", right_world_from_view);
-                Shader.SetGlobalMatrix("_LeftViewFromScreen", left_view_from_screen);
-                Shader.SetGlobalMatrix("_RightViewFromScreen", right_view_from_screen);
+                mat.SetMatrix("_LeftWorldFromView", left_world_from_view);
+                mat.SetMatrix("_RightWorldFromView", right_world_from_view);
+                mat.SetMatrix("_LeftViewFromScreen", left_view_from_screen);
+                mat.SetMatrix("_RightViewFromScreen", right_view_from_screen);
             }
-            else
+            else 
             {
-                // Main eye inverse view matrix
                 Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix().inverse;
 
                 // Inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
                 Matrix4x4 screen_from_view = renderingData.cameraData.GetProjectionMatrix();
-                Matrix4x4 left_view_from_screen = renderingData.cameraData.GetGPUProjectionMatrix().inverse;
+                Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(screen_from_view, true).inverse;
 
                 // Negate [1,1] to reflect Unity's CBuffer state
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3)
                     left_view_from_screen[1, 1] *= -1;
 
                 // Store matrices
-                Shader.SetGlobalMatrix("_LeftWorldFromView", left_world_from_view);
-                Shader.SetGlobalMatrix("_LeftViewFromScreen", left_view_from_screen);
+                mat.SetMatrix("_LeftWorldFromView", left_world_from_view);
+                mat.SetMatrix("_LeftViewFromScreen", left_view_from_screen);
             }
         }
 
@@ -536,18 +567,18 @@ namespace UnityEngine.Rendering.LWRP
 
             SetCloudProperties(renderingData);
 
-            if(myCam != null)
-                UpdateMatrix(renderingData);
+            if(myCam != null && EnviroSky.instance.cloudsSettings.depthBlending)
+                UpdateMatrix(renderingData, cloudsMat);
+
+            cloudsMat.EnableKeyword("ENVIROURP");
+            CustomBlit(cmd,renderer.cameraColorTarget,subFrameId,cloudsMat);
 
             //Render Clouds with downsampling tex
-            //Graphics.Blit(null, subFrameTex, cloudsMat);
-
-            Blit(cmd,source,subFrameId,cloudsMat);
-
+           
+ 
             if (isFirstFrame)
             {
-              // Graphics.Blit(subFrameTex, prevFrameTex);
-                Blit(cmd,subFrameId,prevFrameId);
+                CustomBlit(cmd,subFrameId,prevFrameId);
                 isFirstFrame = false;
             }
 
@@ -583,7 +614,7 @@ namespace UnityEngine.Rendering.LWRP
                 upsampledTex.filterMode = FilterMode.Bilinear;
       
                 RenderTargetIdentifier upsampledId = new RenderTargetIdentifier(upsampledTex);
-
+ 
                 // composite to screen
                 Vector2 pixelSize = new Vector2(1.0f / lowDepth.width, 1.0f / lowDepth.height);
                 compose.SetVector("_LowResPixelSize", pixelSize);
@@ -592,59 +623,48 @@ namespace UnityEngine.Rendering.LWRP
                 compose.SetFloat("_Threshold", 0.0005f);
                 compose.SetTexture("_LowResTexture", subFrameTex);
 
-                Blit(cmd,subFrameId,upsampledId,compose);
-                //Graphics.Blit(subFrameTex, upsampledTex, compose);
+                compose.EnableKeyword("ENVIROURP"); 
+                CustomBlit(cmd,subFrameId,upsampledId,compose);
                 RenderTexture.ReleaseTemporary(lowDepth);
 
                 //Blit clouds to final image
-               // blitMat.SetTexture("_MainTex", src);
                 blitMat.SetTexture("_SubFrame", upsampledTex);
                 blitMat.SetTexture("_PrevFrame", prevFrameTex);
-                SetBlitmaterialProperties();
+                SetBlitmaterialProperties(); 
 
                 RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
                 opaqueDesc.depthBufferBits = 0;
                 cmd.GetTemporaryRT(m_TemporaryColorTexture.id, opaqueDesc, filterMode);
 
-                Blit(cmd,source,m_TemporaryColorTexture.Identifier());
-                Blit(cmd, m_TemporaryColorTexture.Identifier(), source,blitMat);
-                //Graphics.Blit(src, dst, blitMat);
-
-               // Graphics.Blit(upsampledTex, prevFrameTex);
-                Blit(cmd,upsampledId,prevFrameId);
-
+                CustomBlit(cmd,renderer.cameraColorTarget,m_TemporaryColorTexture.Identifier());
+                CustomBlit(cmd, m_TemporaryColorTexture.Identifier(), renderer.cameraColorTarget,blitMat);
+                cmd.ReleaseTemporaryRT(m_TemporaryColorTexture.id);
+                CustomBlit(cmd,upsampledId,prevFrameId);
                 RenderTexture.ReleaseTemporary(upsampledTex);
             }
             else
             {
                 //Blit clouds to final image
-              //  blitMat.SetTexture("_MainTex", src);
                 blitMat.SetTexture("_SubFrame", subFrameTex);
                 blitMat.SetTexture("_PrevFrame", prevFrameTex);
                 SetBlitmaterialProperties();
 
-               // Graphics.Blit(src, dst, blitMat);
                 RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
                 opaqueDesc.depthBufferBits = 0;
 
                 cmd.GetTemporaryRT(m_TemporaryColorTexture.id, opaqueDesc, filterMode);
 
-                Blit(cmd,source,m_TemporaryColorTexture.Identifier());
-                Blit(cmd, m_TemporaryColorTexture.Identifier(), source,blitMat);
-                
-               // Graphics.Blit(subFrameTex, prevFrameTex);
-                Blit(cmd,subFrameId,prevFrameId);
-               
+                blitMat.EnableKeyword("ENVIROURP"); 
+                CustomBlit(cmd,renderer.cameraColorTarget,m_TemporaryColorTexture.Identifier());
+                CustomBlit(cmd, m_TemporaryColorTexture.Identifier(), renderer.cameraColorTarget, blitMat);
+                cmd.ReleaseTemporaryRT(m_TemporaryColorTexture.id);
+                CustomBlit(cmd,subFrameId,prevFrameId);  
             }
 
             FinalizeFrame();
-
-            context.ExecuteCommandBuffer(cmd);
-
-            cmd.ReleaseTemporaryRT(m_TemporaryColorTexture.id);
-
+            cmd.SetRenderTarget(renderer.cameraColorTarget);
+            context.ExecuteCommandBuffer(cmd);         
             CommandBufferPool.Release(cmd);
-
         }
 
         /// <inheritdoc/>

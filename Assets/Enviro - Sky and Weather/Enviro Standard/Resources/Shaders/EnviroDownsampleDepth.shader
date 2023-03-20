@@ -2,7 +2,7 @@
 {
 
 CGINCLUDE
-
+#pragma multi_compile __ ENVIROURP
 #include "UnityCG.cginc"
 
 	struct v2f 
@@ -22,7 +22,14 @@ CGINCLUDE
 		UNITY_SETUP_INSTANCE_ID(v); 
 		UNITY_INITIALIZE_OUTPUT(v2f, o); 
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
+#if defined(ENVIROURP)
+		o.pos = float4(v.vertex.xyz,1.0);
+#if UNITY_UV_STARTS_AT_TOP
+    	o.pos.y *= -1;
+#endif
+#else
 		o.pos = UnityObjectToClipPos(v.vertex);
+#endif
 		o.uv = v.texcoord.xy;
 		return o;
 	}

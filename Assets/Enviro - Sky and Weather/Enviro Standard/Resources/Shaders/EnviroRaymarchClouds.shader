@@ -21,7 +21,7 @@
 		#pragma multi_compile __ ENVIRO_DEPTHBLENDING
 		#pragma multi_compile __ ENVIRO_CURLNOISE
 		#pragma multi_compile __ ENVIRO_HALTONOFFSET
-		 
+		#pragma multi_compile __ ENVIROURP
 		#include "UnityCG.cginc" 
 		#include "../../../Core/Resources/Shaders/Core/EnviroFogCore.cginc"
 		#include "Core/EnviroVolumeCloudsCore.cginc"
@@ -89,7 +89,14 @@
 		UNITY_SETUP_INSTANCE_ID(v); 
 		UNITY_INITIALIZE_OUTPUT(v2f, o); 
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-		o.position = UnityObjectToClipPos(v.vertex);
+#if defined(ENVIROURP)
+		o.position = float4(v.vertex.xyz,1.0);
+#if UNITY_UV_STARTS_AT_TOP
+   		o.position.y *= -1;
+#endif
+#else
+	o.position = UnityObjectToClipPos(v.vertex);
+#endif
 		o.uv = v.texcoord;
 		o.sky.x = saturate(_SunDir.y + 0.25);
 		o.sky.y = saturate(clamp(1.0 - _SunDir.y, 0.0, 0.5));
@@ -101,11 +108,7 @@
 	float4 frag(v2f i) : SV_Target
 	{
 	UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(i);
-
-
-//return lerp(float4(1, 1, 1, 1), float4(0, 0, 0, 0), unity_StereoEyeIndex);
-
-
+	
 	float4 cameraRay = float4(i.uv * 2.0 - 1.0, 1.0, 1.0);
 	//World Space
 	float3 EyePosition = _CameraPosition;
@@ -116,6 +119,7 @@
 	float2 sPos = i.position.xy;
 
 	float3 ray = 0;
+
 
 	//#if UNITY_SINGLE_PASS_STEREO
 	if (unity_StereoEyeIndex == 0)
@@ -135,6 +139,7 @@
 	//		cameraRay = cameraRay / cameraRay.w;
 	//		ray = normalize(mul((float3x3)_InverseRotation, cameraRay.xyz));
 	//#endif                                                              
+
 
 	float rawDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, UnityStereoTransformScreenSpaceTex(i.uv));
 	bool depthPresent = rawDepth > 0.0;
@@ -315,7 +320,7 @@
 #endif     
 	//Raymarching                                  
 	[loop]
-	for (int i = 0; i < steps; i++)
+	for (int iCount = 0; iCount < steps; iCount++)
 	{
 		 
 #ifdef ENVIRO_HALTONOFFSET
@@ -380,7 +385,7 @@
 
 			if (cloud_test == 0.0)
 			{
-				pos += rayStep * 2;
+				pos += rayStep; 
 			}
 			else  //take a step back and capture area we skipped.
 			{

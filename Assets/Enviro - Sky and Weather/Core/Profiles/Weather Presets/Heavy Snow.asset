@@ -55,6 +55,8 @@ MonoBehaviour:
   fogStartDistance: 0
   fogDistance: 1000
   fogDensity: 0.002
+  fogAttenuationDistance: 251
+  fogRelativeFogHeight: 792
   weatherSkyMod:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 0}

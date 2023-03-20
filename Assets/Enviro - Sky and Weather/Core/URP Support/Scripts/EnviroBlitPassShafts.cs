@@ -13,7 +13,9 @@ namespace UnityEngine.Rendering.LWRP
         private Camera myCam;
         public Material blitMaterial = null;
         public Material clearMaterial = null;
-        private RenderTargetIdentifier source { get; set; }
+        
+        private Material blitThrough;
+         private UnityEngine.Rendering.Universal.ScriptableRenderer renderer { get; set; }
         private UnityEngine.Rendering.Universal.RenderTargetHandle destination { get; set; }
         private RenderTexture lrColorB;
         private RenderTexture lrDepthBuffer;
@@ -30,8 +32,31 @@ namespace UnityEngine.Rendering.LWRP
         private Transform lightSource;
         private Color treshold;
         private Color clr;
+        private bool sun;
         #endregion
 
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat, int pass)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat,0,pass);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target)
+        {
+            if(blitThrough == null)
+                blitThrough = new Material(Shader.Find("Hidden/EnviroBlitThrough"));
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, blitThrough);
+        }
         public EnviroBlitPassShafts(UnityEngine.Rendering.Universal.RenderPassEvent renderPassEvent, Material blitMaterial, Material clearMaterial)
         {
             this.renderPassEvent = renderPassEvent;
@@ -39,14 +64,20 @@ namespace UnityEngine.Rendering.LWRP
             this.clearMaterial = clearMaterial;
         }
 
-        public void Setup(Camera myCam, RenderTargetIdentifier source, UnityEngine.Rendering.Universal.RenderTargetHandle destination, Transform lightSource, Color treshold, Color clr)
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            ConfigureTarget(renderer.cameraColorTarget);
+        }
+
+        public void Setup(Camera myCam, UnityEngine.Rendering.Universal.ScriptableRenderer renderer, UnityEngine.Rendering.Universal.RenderTargetHandle destination, Transform lightSource, Color treshold, Color clr, bool sun)
         {
             this.myCam = myCam;
-            this.source = source;
+            this.renderer = renderer;
             this.destination = destination;
             this.lightSource = lightSource;
             this.treshold = treshold;
             this.clr = clr;
+            this.sun = sun;
         }
 
         /// <inheritdoc/>
@@ -60,6 +91,20 @@ namespace UnityEngine.Rendering.LWRP
             else if (EnviroSkyMgr.instance.LightShaftsSettings.resolution == EnviroPostProcessing.SunShaftsResolution.High)
                 divider = 1;
 
+            float intensity = 1f;
+            float radius = 1f;
+
+            if(sun)
+            {
+                intensity = 0.5f;
+                radius = 0.01f;
+            }
+            else
+            {
+                intensity = 0.25f;
+                radius = 0.1f;
+            }
+
             Vector3 v = Vector3.one * 0.5f;
              
             if (lightSource)
@@ -72,21 +117,21 @@ namespace UnityEngine.Rendering.LWRP
 
             RenderTextureDescriptor textureDescriptor = renderingData.cameraData.cameraTargetDescriptor;
             textureDescriptor.width = rtW;
-            textureDescriptor.height = rtH;
+            textureDescriptor.height = rtH;  
             textureDescriptor.depthBufferBits = 0;
-            textureDescriptor.colorFormat = RenderTextureFormat.Default;
+            //textureDescriptor.graphicsFormat = Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat;
+
+            if(lrDepthBuffer != null && (lrDepthBuffer.width != rtW || lrDepthBuffer.height != rtH))
+                MonoBehaviour.DestroyImmediate(lrDepthBuffer);
 
             if (lrDepthBuffer == null)
                 lrDepthBuffer = new RenderTexture(textureDescriptor);
 
+            if(lrColorB != null && (lrColorB.width != rtW || lrColorB.height != rtH))
+                MonoBehaviour.DestroyImmediate(lrColorB);
+
             if (lrColorB == null)
                 lrColorB = new RenderTexture(textureDescriptor);
-
-         //   lrDepthBuffer = RenderTexture.GetTemporary(textureDescriptor);
-
-            cmd.SetGlobalVector("_BlurRadius4", new Vector4(1.0f, 1.0f, 0.0f, 0.0f) * EnviroSkyMgr.instance.LightShaftsSettings.blurRadius);
-            cmd.SetGlobalVector("_SunPosition", new Vector4(v.x, v.y, v.z, EnviroSkyMgr.instance.LightShaftsSettings.maxRadius));
-            cmd.SetGlobalVector("_SunThreshold", treshold);
 
             if(blitMaterial == null)
                blitMaterial = new Material(Shader.Find("Enviro/Effects/LightShafts"));
@@ -94,16 +139,9 @@ namespace UnityEngine.Rendering.LWRP
             blitMaterial.SetVector("_BlurRadius4", new Vector4(1.0f, 1.0f, 0.0f, 0.0f) * EnviroSkyMgr.instance.LightShaftsSettings.blurRadius);
             blitMaterial.SetVector("_SunPosition", new Vector4(v.x, v.y, v.z, EnviroSkyMgr.instance.LightShaftsSettings.maxRadius));
             blitMaterial.SetVector("_SunThreshold", treshold);
+            blitMaterial.EnableKeyword("ENVIROURP");
 
-            RenderTextureDescriptor textureDescriptorSource = renderingData.cameraData.cameraTargetDescriptor;
-            textureDescriptorSource.graphicsFormat = Experimental.Rendering.GraphicsFormat.R32G32B32A32_SFloat;
-            textureDescriptorSource.depthBufferBits = 0;
-            RenderTexture sourceRT = RenderTexture.GetTemporary(textureDescriptorSource);
-            Blit(cmd, source, sourceRT);
-
-
-            Graphics.Blit(sourceRT, lrDepthBuffer, blitMaterial, 2);
-            //Blit(cmd, source, lrDepthBuffer, blitMaterial, 2);
+            CustomBlit(cmd, renderer.cameraColorTarget, lrDepthBuffer,blitMaterial, 2);
 
             if(clearMaterial == null)
                clearMaterial = new Material(Shader.Find("Enviro/Effects/ClearLightShafts"));
@@ -115,48 +153,35 @@ namespace UnityEngine.Rendering.LWRP
             // radial blur:
             radialBlurIterations = Mathf.Clamp(radialBlurIterations, 1, 4);
             float ofs = EnviroSkyMgr.instance.LightShaftsSettings.blurRadius * (1.0f / 768.0f);
-            cmd.SetGlobalVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
-            cmd.SetGlobalVector("_SunPosition", new Vector4(v.x, v.y, v.z, EnviroSkyMgr.instance.LightShaftsSettings.maxRadius));
 
             blitMaterial.SetVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
-            blitMaterial.SetVector("_SunPosition", new Vector4(v.x, v.y, v.z, EnviroSkyMgr.instance.LightShaftsSettings.maxRadius));
+            blitMaterial.SetVector("_SunPosition", new Vector4(v.x, v.y, v.z, EnviroSkyMgr.instance.LightShaftsSettings.maxRadius * radius));
 
             for (int it2 = 0; it2 < radialBlurIterations; it2++)
             {
-                Graphics.Blit(lrDepthBuffer, lrColorB, blitMaterial, 1);
-                //Blit(cmd, lrDepthBuffer, lrColorB, blitMaterial, 1);
-                // RenderTexture.ReleaseTemporary(lrDepthBuffer);
-                ofs = EnviroSkyMgr.instance.LightShaftsSettings.blurRadius * (((it2 * 2.0f + 1.0f) * 6.0f)) / 768.0f;
-                cmd.SetGlobalVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
+                CustomBlit(cmd, lrDepthBuffer, lrColorB,blitMaterial, 1);
+                ofs = EnviroSkyMgr.instance.LightShaftsSettings.blurRadius * (((it2 * 2.0f + 1.0f) * 4f)) / 768.0f;
                 blitMaterial.SetVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
-                //lrDepthBuffer = RenderTexture.GetTemporary(textureDescriptor);
 
-                Graphics.Blit(lrColorB, lrDepthBuffer, blitMaterial, 1);
-                //Blit(cmd, lrColorB, lrDepthBuffer, blitMaterial, 1);
-                //RenderTexture.ReleaseTemporary(lrColorB);
-                ofs = EnviroSkyMgr.instance.LightShaftsSettings.blurRadius * (((it2 * 2.0f + 2.0f) * 6.0f)) / 768.0f;
-                cmd.SetGlobalVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
+                CustomBlit(cmd, lrColorB, lrDepthBuffer,blitMaterial, 1);
+                ofs = EnviroSkyMgr.instance.LightShaftsSettings.blurRadius * (((it2 * 2.0f + 2.0f) * 4f)) / 768.0f;
                 blitMaterial.SetVector("_BlurRadius4", new Vector4(ofs, ofs, 0.0f, 0.0f));
             }
 
             // put together:
 
             if (v.z >= 0.0f)
-                cmd.SetGlobalVector("_SunColor", new Vector4(clr.r, clr.g, clr.b, clr.a) * EnviroSkyMgr.instance.LightShaftsSettings.intensity);
+                blitMaterial.SetVector("_SunColor", new Vector4(clr.r, clr.g, clr.b, clr.a) * EnviroSkyMgr.instance.LightShaftsSettings.intensity * intensity);
             else
-                cmd.SetGlobalVector("_SunColor", Vector4.zero); // no backprojection !
+                blitMaterial.SetVector("_SunColor", Vector4.zero); // no backprojection !
 
 
             //FINAL
-            // blitMaterial.SetTexture("_ColorBuffer", lrDepthBuffer);
-
-
-            cmd.SetGlobalTexture("_ColorBuffer", lrDepthBuffer);
-            Blit(cmd, sourceRT, source, blitMaterial, (EnviroSkyMgr.instance.LightShaftsSettings.screenBlendMode == EnviroPostProcessing.ShaftsScreenBlendMode.Screen) ? 0 : 4);
- 
-            //  RenderTexture.ReleaseTemporary(lrDepthBuffer);
-            RenderTexture.ReleaseTemporary(sourceRT);
-
+            blitMaterial.SetTexture("_ColorBuffer", lrDepthBuffer);
+            RenderTexture sourceCopy = RenderTexture.GetTemporary(renderingData.cameraData.cameraTargetDescriptor);
+            CustomBlit(cmd, renderer.cameraColorTarget, sourceCopy);
+            CustomBlit(cmd, sourceCopy, renderer.cameraColorTarget, blitMaterial, 4);
+            RenderTexture.ReleaseTemporary(sourceCopy);
             context.ExecuteCommandBuffer(cmd);
             CommandBufferPool.Release(cmd);
         }

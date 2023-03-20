@@ -213,9 +213,7 @@ public class EnviroSkyRendering : MonoBehaviour
 #if ENVIRO_LWRP || ENVIRO_HDRP
         this.enabled = false;
         return;
-#endif
-
-
+#else
         if (myCam == null)
             myCam = GetComponent<Camera>();
 
@@ -244,7 +242,7 @@ public class EnviroSkyRendering : MonoBehaviour
             }
 
         }
-
+#endif
     }
 
     void OnDisable()
@@ -253,10 +251,10 @@ public class EnviroSkyRendering : MonoBehaviour
 #if ENVIRO_LWRP || ENVIRO_HDRP
         CleanupMaterials();
         return;
-#endif
-
+#else
         RemoveCommandBuffer();
         CleanupMaterials();
+#endif
     }
     #endregion
     ////////////////////////
@@ -329,7 +327,7 @@ public class EnviroSkyRendering : MonoBehaviour
             return;
 
         currentVolumeRes = EnviroSky.instance.volumeLightSettings.Resolution;
-        ChangeResolution();
+        //ChangeResolution();
 
         if (_pointLightMesh == null)
         {
@@ -359,79 +357,80 @@ public class EnviroSkyRendering : MonoBehaviour
         GenerateDitherTexture();
     }
 
-    private void ChangeResolution()
+    private void ChangeResolution(RenderTextureDescriptor descriptor)
     {
         int width = myCam.pixelWidth;
         int height = myCam.pixelHeight;
 
         if (width <= 0 || height <= 0)
             return;
+        
 
         if (_volumeLightTexture != null)
+        {
+            _volumeLightTexture.Release();
             DestroyImmediate(_volumeLightTexture);
+        }
 
-        _volumeLightTexture = new RenderTexture(width, height, 0, RenderTextureFormat.ARGBHalf);
+        _volumeLightTexture = new RenderTexture(descriptor);
         _volumeLightTexture.name = "VolumeLightBuffer";
-        _volumeLightTexture.filterMode = FilterMode.Bilinear;
 
-
-#if UNITY_2017_2
-        if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-        {
-            _volumeLightTexture.vrUsage = VRTextureUsage.TwoEyes;
-        }
-#endif
-
-#if UNITY_2017_3_OR_NEWER || UNITY_2017_1
-        if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-        {
-            if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half || EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
-                _volumeLightTexture.vrUsage = VRTextureUsage.None;
-            else
-                _volumeLightTexture.vrUsage = VRTextureUsage.TwoEyes;
-        }
-#endif
-
+        //Half Res
         if (_halfDepthBuffer != null)
+        {
+            _halfDepthBuffer.Release();
             DestroyImmediate(_halfDepthBuffer);
+        }
         if (_halfVolumeLightTexture != null)
+        {
+            _halfVolumeLightTexture.Release();
             DestroyImmediate(_halfVolumeLightTexture);
+        }
 
         if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half || EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
         {
-            _halfVolumeLightTexture = new RenderTexture(width / 2, height / 2, 0, RenderTextureFormat.ARGBHalf);
+            RenderTextureDescriptor halfResDescriptor = descriptor;
+            halfResDescriptor.width = halfResDescriptor.width / 2;
+            halfResDescriptor.height = halfResDescriptor.height / 2;
+
+            _halfVolumeLightTexture = new RenderTexture(halfResDescriptor);
             _halfVolumeLightTexture.name = "VolumeLightBufferHalf";
-            _halfVolumeLightTexture.filterMode = FilterMode.Bilinear;
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                _halfVolumeLightTexture.vrUsage = VRTextureUsage.TwoEyes;
-            _halfDepthBuffer = new RenderTexture(width / 2, height / 2, 0, RenderTextureFormat.RFloat);
+
+            RenderTextureDescriptor halfResDepthDescriptor = halfResDescriptor;
+            halfResDepthDescriptor.colorFormat = RenderTextureFormat.RFloat;
+
+            _halfDepthBuffer = new RenderTexture(halfResDepthDescriptor);
             _halfDepthBuffer.name = "VolumeLightHalfDepth";
-#if UNITY_2019_2_OR_NEWER
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                _halfDepthBuffer.vrUsage = VRTextureUsage.OneEye;
-#endif
             _halfDepthBuffer.Create();
             _halfDepthBuffer.filterMode = FilterMode.Point;
+
         }
 
+        //Quarter Res
         if (_quarterVolumeLightTexture != null)
+        {
+            _quarterVolumeLightTexture.Release();
             DestroyImmediate(_quarterVolumeLightTexture);
+        }
         if (_quarterDepthBuffer != null)
+        {
+            _quarterDepthBuffer.Release();
             DestroyImmediate(_quarterDepthBuffer);
+        }
 
         if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
         {
-            _quarterVolumeLightTexture = new RenderTexture(width / 4, height / 4, 0, RenderTextureFormat.ARGBHalf);
+            RenderTextureDescriptor quarterResDescriptor = descriptor;
+            quarterResDescriptor.width = quarterResDescriptor.width / 4;
+            quarterResDescriptor.height = quarterResDescriptor.height / 4;
+            _quarterVolumeLightTexture = new RenderTexture(quarterResDescriptor);
             _quarterVolumeLightTexture.name = "VolumeLightBufferQuarter";
-            _quarterVolumeLightTexture.filterMode = FilterMode.Bilinear;
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                _quarterVolumeLightTexture.vrUsage = VRTextureUsage.TwoEyes;
-            _quarterDepthBuffer = new RenderTexture(width / 4, height / 4, 0, RenderTextureFormat.RFloat);
+
+            RenderTextureDescriptor quarterResDepthDescriptor = quarterResDescriptor;
+            quarterResDepthDescriptor.colorFormat = RenderTextureFormat.RFloat;
+
+            _quarterDepthBuffer = new RenderTexture(quarterResDepthDescriptor);
             _quarterDepthBuffer.name = "VolumeLightQuarterDepth";
-#if UNITY_2019_2_OR_NEWER
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                _quarterDepthBuffer.vrUsage = VRTextureUsage.OneEye;
-#endif
             _quarterDepthBuffer.Create();
             _quarterDepthBuffer.filterMode = FilterMode.Point;
         }
@@ -543,41 +542,6 @@ public class EnviroSkyRendering : MonoBehaviour
                 _viewProjSP = projRight * myCam.worldToCameraMatrix;
             }
 
-            if (_preLightPass != null)
-                _preLightPass.Clear();
-
-            if (_afterLightPass != null)
-                _afterLightPass.Clear();
-
-            bool dx11 = SystemInfo.graphicsShaderLevel > 40;
-
-            if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
-            {
-                Texture nullTexture = null;
-                // down sample depth to half res
-                _preLightPass.Blit(nullTexture, _halfDepthBuffer, _bilateralBlurMaterial, dx11 ? 4 : 10);
-                // down sample depth to quarter res
-                _preLightPass.Blit(nullTexture, _quarterDepthBuffer, _bilateralBlurMaterial, dx11 ? 6 : 11);
-
-                _preLightPass.SetRenderTarget(_quarterVolumeLightTexture);
-            }
-            else if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half)
-            {
-                Texture nullTexture = null;
-                // down sample depth to half res
-                _preLightPass.Blit(nullTexture, _halfDepthBuffer, _bilateralBlurMaterial, dx11 ? 4 : 10);
-
-                _preLightPass.SetRenderTarget(_halfVolumeLightTexture);
-            }
-            else
-            {
-                _preLightPass.SetRenderTarget(_volumeLightTexture);
-            }
-
-            _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
-
-            UpdateMaterialParameters();
-
             if (PreRenderEvent != null)
                 PreRenderEvent(this, _viewProj, _viewProjSP);
         }
@@ -626,80 +590,6 @@ public class EnviroSkyRendering : MonoBehaviour
             Shader.SetGlobalMatrix("_LeftViewFromScreen", left_view_from_screen);
         }
         //////////////////////////////
-
-
-        if (EnviroSky.instance == null)
-            return;
-
-        //Satellites
-        if (myCam != null)
-        {
-            switch (myCam.stereoActiveEye)
-            {
-                case Camera.MonoOrStereoscopicEye.Mono:
-                    if (EnviroSky.instance.satCamera != null)
-                        RenderCamera(EnviroSky.instance.satCamera, Camera.MonoOrStereoscopicEye.Mono);
-                    break;
-
-                case Camera.MonoOrStereoscopicEye.Left:
-                    if (EnviroSky.instance.satCamera != null)
-                        RenderCamera(EnviroSky.instance.satCamera, Camera.MonoOrStereoscopicEye.Left);
-                    break;
-
-                case Camera.MonoOrStereoscopicEye.Right:
-                    if (EnviroSky.instance.satCamera != null)
-                        RenderCamera(EnviroSky.instance.satCamera, Camera.MonoOrStereoscopicEye.Right);
-                    break;
-            }
-
-            if (EnviroSky.instance.satCamera != null)
-                RenderSettings.skybox.SetTexture("_SatTex", EnviroSky.instance.satCamera.targetTexture);
-        }
-    }
-
-    void RenderCamera(Camera targetCam, Camera.MonoOrStereoscopicEye eye)
-    {
-        targetCam.fieldOfView = EnviroSky.instance.PlayerCamera.fieldOfView;
-        targetCam.aspect = EnviroSky.instance.PlayerCamera.aspect;
-
-        switch (eye)
-        {
-            case Camera.MonoOrStereoscopicEye.Mono:
-                targetCam.transform.position = EnviroSky.instance.PlayerCamera.transform.position;
-                targetCam.transform.rotation = EnviroSky.instance.PlayerCamera.transform.rotation;
-                targetCam.worldToCameraMatrix = EnviroSky.instance.PlayerCamera.worldToCameraMatrix;
-                targetCam.Render();
-                break;
-
-            case Camera.MonoOrStereoscopicEye.Left:
-
-                targetCam.transform.position = EnviroSky.instance.PlayerCamera.transform.position;
-                targetCam.transform.rotation = EnviroSky.instance.PlayerCamera.transform.rotation;
-                targetCam.projectionMatrix = EnviroSky.instance.PlayerCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
-                targetCam.worldToCameraMatrix = EnviroSky.instance.PlayerCamera.GetStereoViewMatrix(Camera.StereoscopicEye.Left);
-                targetCam.Render();
-
-                /*	if (EnviroSky.instance.singlePassVR == true) 
-                    {
-                       if (targetCam == EnviroSky.instance.skyCamera && spSkyCam != null) {
-                            spSkyCam.fieldOfView = EnviroSky.instance.PlayerCamera.fieldOfView;	
-                            spSkyCam.aspect = EnviroSky.instance.PlayerCamera.aspect;
-                            spSkyCam.projectionMatrix = EnviroSky.instance.PlayerCamera.GetStereoProjectionMatrix (Camera.StereoscopicEye.Right);
-                            spSkyCam.worldToCameraMatrix = EnviroSky.instance.PlayerCamera.GetStereoViewMatrix (Camera.StereoscopicEye.Right);
-                            spSkyCam.Render ();
-                            material.SetTexture ("_SkySPSR", spSkytex);
-                        }
-                    }*/
-                break;
-
-            case Camera.MonoOrStereoscopicEye.Right:
-                targetCam.transform.position = EnviroSky.instance.PlayerCamera.transform.position;
-                targetCam.transform.rotation = EnviroSky.instance.PlayerCamera.transform.rotation;
-                targetCam.projectionMatrix = EnviroSky.instance.PlayerCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
-                targetCam.worldToCameraMatrix = EnviroSky.instance.PlayerCamera.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
-                targetCam.Render();
-                break;
-        }
     }
 
     private void UpdateQualitySettings()
@@ -738,15 +628,6 @@ public class EnviroSkyRendering : MonoBehaviour
             currentReprojectionPixelSize = usedCloudsQuality.reprojectionPixelSize;
             SetReprojectionPixelSize(usedCloudsQuality.reprojectionPixelSize);
         }
-
-        if (currentVolumeRes != EnviroSky.instance.volumeLightSettings.Resolution)
-        {
-            ChangeResolution();
-            currentVolumeRes = EnviroSky.instance.volumeLightSettings.Resolution;
-        }
-
-        if (_volumeLightTexture != null && (_volumeLightTexture.width != myCam.pixelWidth || _volumeLightTexture.height != myCam.pixelHeight))
-            ChangeResolution();
 
         if (!useFog && currentFogType != FogType.Disabled || useFog && EnviroSky.instance.fogSettings.useSimpleFog && currentFogType != FogType.Simple || useFog && !EnviroSky.instance.fogSettings.useSimpleFog && currentFogType != FogType.Standard)
             CreateFogMaterial();
@@ -1184,8 +1065,88 @@ public class EnviroSkyRendering : MonoBehaviour
         if (volumeLightMat == null)
             volumeLightMat = new Material(Shader.Find("Enviro/Standard/VolumeLight"));
 
+
+        if (currentVolumeRes != EnviroSky.instance.volumeLightSettings.Resolution)
+        {
+            ChangeResolution(src.descriptor);
+            currentVolumeRes = EnviroSky.instance.volumeLightSettings.Resolution;
+        }
+
         if (_volumeLightTexture == null || (_halfVolumeLightTexture == null && EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half) || (_quarterVolumeLightTexture == null && EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter))
-            ChangeResolution();
+            ChangeResolution(src.descriptor);
+
+        if (_volumeLightTexture != null && (_volumeLightTexture.width != myCam.pixelWidth || _volumeLightTexture.height != myCam.pixelHeight))
+            ChangeResolution(src.descriptor);
+
+
+        if (_preLightPass != null)
+            _preLightPass.Clear();
+
+        if (_afterLightPass != null)
+            _afterLightPass.Clear();
+
+        bool dx11 = SystemInfo.graphicsShaderLevel > 40;
+
+        if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
+        {
+            //Texture nullTexture = null;
+            // down sample depth to half res
+            _preLightPass.Blit(src, _halfDepthBuffer, _bilateralBlurMaterial, dx11 ? 4 : 10);
+            // down sample depth to quarter res
+            _preLightPass.Blit(src, _quarterDepthBuffer, _bilateralBlurMaterial, dx11 ? 6 : 11);
+
+            if(EnviroSky.instance.singlePassInstancedVR)
+            {
+                _preLightPass.SetRenderTarget(_quarterVolumeLightTexture,0,CubemapFace.Unknown,0);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+                _preLightPass.SetRenderTarget(_quarterVolumeLightTexture,0,CubemapFace.Unknown,1);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+            }
+            else
+            {
+                _preLightPass.SetRenderTarget(_quarterVolumeLightTexture);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+            }
+
+            
+        }
+        else if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half)
+        {
+           // Texture nullTexture = null;
+            // down sample depth to half res
+            _preLightPass.Blit(src, _halfDepthBuffer, _bilateralBlurMaterial, dx11 ? 4 : 10);
+            
+            if(EnviroSky.instance.singlePassInstancedVR)
+            {
+                _preLightPass.SetRenderTarget(_halfVolumeLightTexture,0,CubemapFace.Unknown,0);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+                _preLightPass.SetRenderTarget(_halfVolumeLightTexture,0,CubemapFace.Unknown,1);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+
+            }
+            else
+            {
+                _preLightPass.SetRenderTarget(_halfVolumeLightTexture);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+            }            
+        }
+        else
+        {   
+            if(EnviroSky.instance.singlePassInstancedVR)
+            {
+                _preLightPass.SetRenderTarget(_volumeLightTexture,0,CubemapFace.Unknown,0);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+                _preLightPass.SetRenderTarget(_volumeLightTexture,0,CubemapFace.Unknown,1);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+            }
+            else
+            {
+                _preLightPass.SetRenderTarget(_volumeLightTexture);
+                _preLightPass.ClearRenderTarget(false, true, new Color(0, 0, 0, 1));
+            }
+        }
+
+        UpdateMaterialParameters();
 
         //Dir volume
         if (EnviroSky.instance.volumeLightSettings.dirVolumeLighting)
@@ -1214,8 +1175,6 @@ public class EnviroSkyRendering : MonoBehaviour
                 volumeLightMat.EnableKeyword("DIRECTIONAL_COOKIE");
                 volumeLightMat.DisableKeyword("DIRECTIONAL");
                 volumeLightMat.SetTexture("_LightTexture0", _light.cookie);
-                // Matrix4x4 view = Matrix4x4.TRS(_light.transform.position, _light.transform.rotation, Vector3.one).inverse;
-                // volumeLightMat.SetMatrix("_MyLightMatrix0", _light.transform.localToWorldMatrix);
             }
 
             volumeLightMat.SetInt("_SampleCount", EnviroSky.instance.volumeLightSettings.SampleCount);
@@ -1224,29 +1183,25 @@ public class EnviroSkyRendering : MonoBehaviour
             volumeLightMat.SetVector("_MieG", new Vector4(1 - (EnviroSky.instance.volumeLightSettings.Anistropy * EnviroSky.instance.volumeLightSettings.Anistropy), 1 + (EnviroSky.instance.volumeLightSettings.Anistropy * EnviroSky.instance.volumeLightSettings.Anistropy), 2 * EnviroSky.instance.volumeLightSettings.Anistropy, 1.0f / (4.0f * Mathf.PI)));
             volumeLightMat.SetVector("_VolumetricLight", new Vector4(EnviroSky.instance.volumeLightSettings.ScatteringCoef.Evaluate(EnviroSky.instance.GameTime.solarTime), EnviroSky.instance.volumeLightSettings.ExtinctionCoef, _light.range, 1.0f));// - SkyboxExtinctionCoef));
             volumeLightMat.SetTexture("_CameraDepthTexture", GetVolumeLightDepthBuffer());
+            volumeLightMat.SetFloat("_ShadowDistance", QualitySettings.shadowDistance); 
             // volumeLightMat.SetVector("_DensityParams", new Vector4(EnviroSky.instance.volumeFogSettings.skyDensity, EnviroSky.instance.volumeFogSettings.groundDensity, EnviroSky.instance.volumeFogSettings.groundFogHeight, heightDensity * 0.5f));
 
             //Texture tex = null;
             if (_light.shadows != LightShadows.None)
             {
                 volumeLightMat.EnableKeyword("SHADOWS_DEPTH");
-                Graphics.Blit(null, GetVolumeLightBuffer(), volumeLightMat, pass);
+                Graphics.Blit(src, GetVolumeLightBuffer(), volumeLightMat, pass);
             }
             else
             {
                 volumeLightMat.DisableKeyword("SHADOWS_DEPTH");
-                Graphics.Blit(null, GetVolumeLightBuffer(), volumeLightMat, pass);
+                Graphics.Blit(src, GetVolumeLightBuffer(), volumeLightMat, pass);
             }
         }
 
         if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Quarter)
         {
-            RenderTextureDescriptor desc = new RenderTextureDescriptor(_quarterDepthBuffer.width, _quarterDepthBuffer.height, RenderTextureFormat.ARGBHalf, 0);
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                desc.vrUsage = VRTextureUsage.TwoEyes;
-
-            RenderTexture temp = RenderTexture.GetTemporary(desc);
-            temp.filterMode = FilterMode.Bilinear;
+            RenderTexture temp = RenderTexture.GetTemporary(_quarterVolumeLightTexture.descriptor);
 
             // horizontal bilateral blur at quarter res
             Graphics.Blit(_quarterVolumeLightTexture, temp, _bilateralBlurMaterial, 8);
@@ -1260,12 +1215,7 @@ public class EnviroSkyRendering : MonoBehaviour
         }
         else if (EnviroSky.instance.volumeLightSettings.Resolution == VolumtericResolution.Half)
         {
-            RenderTextureDescriptor desc = new RenderTextureDescriptor(_halfVolumeLightTexture.width, _halfVolumeLightTexture.height, RenderTextureFormat.ARGBHalf, 0);
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                desc.vrUsage = VRTextureUsage.TwoEyes;
-
-            RenderTexture temp = RenderTexture.GetTemporary(desc);
-            temp.filterMode = FilterMode.Bilinear;
+            RenderTexture temp = RenderTexture.GetTemporary(_halfVolumeLightTexture.descriptor);
   
             // horizontal bilateral blur at half res
             Graphics.Blit(_halfVolumeLightTexture, temp, _bilateralBlurMaterial, 2);
@@ -1279,11 +1229,7 @@ public class EnviroSkyRendering : MonoBehaviour
         }
         else
         {
-            RenderTextureDescriptor desc = new RenderTextureDescriptor(_volumeLightTexture.width, _volumeLightTexture.height, RenderTextureFormat.ARGBHalf, 0);
-            if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
-                desc.vrUsage = VRTextureUsage.TwoEyes;
-
-            RenderTexture temp = RenderTexture.GetTemporary(desc);
+            RenderTexture temp = RenderTexture.GetTemporary(_volumeLightTexture.descriptor);
             temp.filterMode = FilterMode.Bilinear;
 
             // horizontal bilateral blur at full res
@@ -1349,11 +1295,11 @@ public class EnviroSkyRendering : MonoBehaviour
         // prefilter pass
 
         RenderTextureDescriptor renderDescriptor = source.descriptor;
-        renderDescriptor.width = tw;
+        renderDescriptor.width = tw; 
         renderDescriptor.height = th;
 
-        if (!EnviroSky.instance.singlePassInstancedVR)
-            renderDescriptor.vrUsage = VRTextureUsage.None;
+        //if (!EnviroSky.instance.singlePassInstancedVR)
+        //    renderDescriptor.vrUsage = VRTextureUsage.None;
 
         var prefiltered = RenderTexture.GetTemporary(renderDescriptor);
 
@@ -1657,7 +1603,6 @@ public class EnviroSkyRendering : MonoBehaviour
         else
             cloudsMat.SetTexture("_DetailNoise", EnviroSky.instance.ressources.detailNoiseTextureHigh);
 
-
         if (EnviroSky.instance.floatingPointOriginAnchor != null)
             EnviroSky.instance.floatingPointOriginMod = EnviroSky.instance.floatingPointOriginAnchor.position;
 
@@ -1680,7 +1625,7 @@ public class EnviroSkyRendering : MonoBehaviour
                 inverseRotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
                 cloudsMat.SetMatrix("_InverseRotation", inverseRotation);
 
-                if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
+                if (myCam.stereoEnabled)
                 {
                     Matrix4x4 inverseProjectionRightSP = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right).inverse;
                     cloudsMat.SetMatrix("_InverseProjection_SP", inverseProjectionRightSP);
@@ -1789,7 +1734,7 @@ public class EnviroSkyRendering : MonoBehaviour
         blitMat.SetMatrix("_InverseRotation", inverseRotation);
         blitMat.SetMatrix("_InverseProjection", inverseProjection);
 
-        if (myCam.stereoEnabled && EnviroSky.instance.singlePassVR)
+        if (myCam.stereoEnabled)
         {
             Matrix4x4 inverseProjectionSPVR = projectionSPVR.inverse;
             blitMat.SetMatrix("_PreviousRotationSPVR", previousRotationSPVR);
@@ -1798,12 +1743,6 @@ public class EnviroSkyRendering : MonoBehaviour
             blitMat.SetMatrix("_InverseProjectionSPVR", inverseProjectionSPVR);
 
         }
-
-        if (myCam.stereoEnabled && EnviroSky.instance.singlePassInstancedVR)
-            blitMat.EnableKeyword("ENVIRO_SINGLEPASSINSTANCED");
-
-        else
-            blitMat.DisableKeyword("ENVIRO_SINGLEPASSINSTANCED");
 
         blitMat.SetFloat("_FrameNumber", subFrameNumber);
         blitMat.SetFloat("_ReprojectionPixelSize", reprojectionPixelSize);
@@ -1837,12 +1776,14 @@ public class EnviroSkyRendering : MonoBehaviour
     {
         if (subFrameTex != null)
         {
+            subFrameTex.Release();
             DestroyImmediate(subFrameTex);
             subFrameTex = null;
         }
 
         if (prevFrameTex != null)
         {
+            prevFrameTex.Release();
             DestroyImmediate(prevFrameTex);
             prevFrameTex = null;
         }
@@ -1919,13 +1860,9 @@ public class EnviroSkyRendering : MonoBehaviour
                 projection = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
                 rotation = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left);
                 inverseRotation = rotation.inverse;
-
-                if (EnviroSky.instance.singlePassVR)
-                {
-                    projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
-                    rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
-                    inverseRotationSPVR = rotationSPVR.inverse;
-                }
+                projectionSPVR = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                rotationSPVR = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
+                inverseRotationSPVR = rotationSPVR.inverse;
                 break;
 
             case Camera.MonoOrStereoscopicEye.Right:
@@ -1940,8 +1877,7 @@ public class EnviroSkyRendering : MonoBehaviour
         renderingCounter++;
 
         previousRotation = rotation;
-        if (EnviroSky.instance.singlePassVR)
-            previousRotationSPVR = rotationSPVR;
+        previousRotationSPVR = rotationSPVR;
 
         int reproSize = reprojectionPixelSize * reprojectionPixelSize;
         subFrameNumber = frameList[renderingCounter % reproSize];

@@ -62,14 +62,14 @@ namespace UnityEngine.Rendering.LWRP
                     return;
 
 
-                var src = renderer.cameraColorTarget;
+               // var src = renderer.cameraColorTarget;
                 var dest = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
                 if(blitPass == null)
-                    Create();
+                    Create(); 
 
                 CreateMaterialsAndTextures();
-                blitPass.Setup(myCam, src, dest, EnviroSkyMgr.instance.Components.Sun.transform, EnviroSkyMgr.instance.LightShaftsSettings.thresholdColorSun.Evaluate(EnviroSkyMgr.instance.Time.solarTime), EnviroSkyMgr.instance.LightShaftsSettings.lightShaftsColorSun.Evaluate(EnviroSkyMgr.instance.Time.solarTime));
+                blitPass.Setup(myCam, renderer, dest, EnviroSkyMgr.instance.Components.Sun.transform, EnviroSkyMgr.instance.LightShaftsSettings.thresholdColorSun.Evaluate(EnviroSkyMgr.instance.Time.solarTime), EnviroSkyMgr.instance.LightShaftsSettings.lightShaftsColorSun.Evaluate(EnviroSkyMgr.instance.Time.solarTime),true);
                 renderer.EnqueuePass(blitPass);
 
             }

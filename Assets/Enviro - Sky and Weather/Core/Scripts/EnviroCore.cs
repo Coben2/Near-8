@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -221,6 +221,7 @@ public class EnviroWeather
 
     [HideInInspector]
     public GameObject VFXHolder;
+    public GameObject SFXHolder;
     [HideInInspector]
     public float wetness;
     [HideInInspector]
@@ -420,14 +421,20 @@ public class EnviroCore : MonoBehaviour
     [HideInInspector]
     [Range(-2f, 2f)]
     public float customMoonPhase = 0.0f;
-
+    //VolumeLighting
+    public float globalVolumeLightIntensity;
     //References
     public Light MainLight;
     public Light AdditionalLight;
     public Transform MoonTransform;
 #if ENVIRO_HDRP
+    public UnityEngine.Rendering.Volume enviroVolumeHDRP;
     public UnityEngine.Rendering.HighDefinition.HDAdditionalLightData MainLightHDRP;
     public UnityEngine.Rendering.HighDefinition.HDAdditionalLightData AdditionalLightHDRP;
+#endif
+
+#if ENVIRO_LWRP
+    public UnityEngine.Rendering.Universal.UniversalAdditionalLightData MainLightURP; 
 #endif
     //Lighting
     [HideInInspector]
@@ -436,6 +443,9 @@ public class EnviroCore : MonoBehaviour
     public double lastRelfectionUpdate;
     [HideInInspector]
     public Vector3 lastRelfectionPositionUpdate;
+    public Cubemap defaultSkyReflectionTex;
+    public float directLightIntensityMod = 1f;
+    public float ambientLightIntensityMod = 1f;
     //SFX
     [HideInInspector]
     public GameObject EffectsHolder;
@@ -473,7 +483,7 @@ public class EnviroCore : MonoBehaviour
     [Tooltip("Activate to set recommended maincamera clear flag.")]
     public bool setCameraClearFlags = true;
 
-
+ 
     //HDRP
     [HideInInspector]
     public int frames = 0;
@@ -482,6 +492,45 @@ public class EnviroCore : MonoBehaviour
     public float currentSceneExposureMod = 1f;
     public float currentSkyExposureMod = 1f;
     public float currentLightIntensityMod = 1f;
+
+#if ENVIRO_HDRP
+    public UnityEngine.Rendering.HighDefinition.VisualEnvironment visualEnvironment;
+#if ENVIRO_HD
+    public UnityEngine.Rendering.HighDefinition.EnviroSkybox enviroHDRPSky;
+#endif
+#if ENVIRO_LW
+    public UnityEngine.Rendering.HighDefinition.EnviroSkyboxLite enviroHDRPSkyLite;
+#endif
+    public UnityEngine.Rendering.HighDefinition.Exposure enviroExposure;
+    public UnityEngine.Rendering.HighDefinition.Fog hdrpFog;
+    public GameObject mySkyAndFogVolume;
+#endif
+    public List<Camera> additionalCameras;
+
+
+    public bool RenderEnviroOnThisCam(Camera cam)
+    {
+        if(cam.cameraType == CameraType.SceneView)
+           return true;
+
+        if(cam == PlayerCamera)
+           return true;
+
+        if(Components.GlobalReflectionProbe.renderCam != null && cam == Components.GlobalReflectionProbe.renderCam)
+           return true;
+
+        if(Components.GlobalReflectionProbe.bakingCam != null && cam == Components.GlobalReflectionProbe.bakingCam)
+           return true;
+
+        for (int i = 0; i < additionalCameras.Count; i++)
+        {
+            if(cam == additionalCameras[i])
+               return true;
+        }
+
+        return false;
+    }
+    
     public void UpdateEnviroment() // Update the all GrowthInstances
     {
         // Set correct Season.
@@ -679,15 +728,16 @@ public class EnviroCore : MonoBehaviour
         else
             EffectsHolder.transform.position = transform.position;
 
-        GameObject SFX = GameObject.Find(name + "/SFX Holder(Clone)");
+        if(Weather.SFXHolder == null)
+           Weather.SFXHolder = GameObject.Find(name + "/SFX Holder(Clone)");
 
-        if (SFX == null)
+        if (Weather.SFXHolder == null)
         {
-            SFX = (GameObject)Instantiate(Audio.SFXHolderPrefab, Vector3.zero, Quaternion.identity);
-            SFX.transform.parent = EffectsHolder.transform;
+            Weather.SFXHolder = (GameObject)Instantiate(Audio.SFXHolderPrefab, Vector3.zero, Quaternion.identity);
+            Weather.SFXHolder.transform.parent = EffectsHolder.transform;
         }
 
-        EnviroAudioSource[] srcs = SFX.GetComponentsInChildren<EnviroAudioSource>();
+        EnviroAudioSource[] srcs = Weather.SFXHolder.GetComponentsInChildren<EnviroAudioSource>();
 
         for (int i = 0; i < srcs.Length; i++)
         {
@@ -1373,7 +1423,7 @@ public class EnviroCore : MonoBehaviour
     /// <summary>
     /// Updates reflection probe.
     /// </summary>
-    public void UpdateReflections()
+    public void UpdateReflections(bool forced)
     {
         if (Components.GlobalReflectionProbe == null)
         {
@@ -1401,6 +1451,7 @@ public class EnviroCore : MonoBehaviour
         if (!reflectionSettings.globalReflections)
         {
             Components.GlobalReflectionProbe.enabled = false;
+            //RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Skybox;
             return;
         }
 
@@ -1408,14 +1459,13 @@ public class EnviroCore : MonoBehaviour
             Components.GlobalReflectionProbe.enabled = true;
 
 
+#if !ENVIRO_HDRP
         Components.GlobalReflectionProbe.myProbe.cullingMask = reflectionSettings.globalReflectionLayers;
         Components.GlobalReflectionProbe.myProbe.intensity = reflectionSettings.globalReflectionsIntensity;
         Components.GlobalReflectionProbe.myProbe.size = transform.localScale * reflectionSettings.globalReflectionsScale;
 
-
         switch (reflectionSettings.globalReflectionResolution)
         {
-
             case EnviroReflectionSettings.GlobalReflectionResolution.R16:
                 Components.GlobalReflectionProbe.myProbe.resolution = 16;
                 break;
@@ -1440,27 +1490,91 @@ public class EnviroCore : MonoBehaviour
             case EnviroReflectionSettings.GlobalReflectionResolution.R2048:
                 Components.GlobalReflectionProbe.myProbe.resolution = 2048;
                 break;
+        }
+#else 
+        if(Components.GlobalReflectionProbe.hdprobe != null)
+        {
+            Components.GlobalReflectionProbe.hdprobe.multiplier = reflectionSettings.globalReflectionsIntensity;
+            Components.GlobalReflectionProbe.hdprobe.influenceVolume.boxSize = transform.localScale * reflectionSettings.globalReflectionsScale;
+            Components.GlobalReflectionProbe.hdprobe.influenceVolume.sphereRadius = reflectionSettings.globalReflectionsScale;
+            Components.GlobalReflectionProbe.hdprobe.settingsRaw.cameraSettings.culling.cullingMask = reflectionSettings.globalReflectionLayers;
+        }
+#endif
 
+        //Force update, return after that one.
+        if(forced)
+        {
+            ReflectionProbeUpdate (forced);
+            return;
         }
 
         if ((currentTimeInHours > lastRelfectionUpdate + reflectionSettings.globalReflectionsTimeTreshold || currentTimeInHours < lastRelfectionUpdate - reflectionSettings.globalReflectionsTimeTreshold) && reflectionSettings.globalReflectionsUpdateOnGameTime)
         {
-            lastRelfectionUpdate = currentTimeInHours;
-            Components.GlobalReflectionProbe.RefreshReflection(reflectionSettings.globalReflectionTimeSlicing);
+            ReflectionProbeUpdate (forced);
         }
         else if ((transform.position.magnitude > lastRelfectionPositionUpdate.magnitude + reflectionSettings.globalReflectionsPositionTreshold || transform.position.magnitude < lastRelfectionPositionUpdate.magnitude - reflectionSettings.globalReflectionsPositionTreshold) && reflectionSettings.globalReflectionsUpdateOnPosition)
         {
             lastRelfectionPositionUpdate = transform.position;
             Components.GlobalReflectionProbe.RefreshReflection(reflectionSettings.globalReflectionTimeSlicing);
         }
+    } 
+
+    private void ReflectionProbeUpdate (bool forced)
+    {
+            lastRelfectionUpdate = currentTimeInHours;
+
+            if(!forced)
+              Components.GlobalReflectionProbe.RefreshReflection(reflectionSettings.globalReflectionTimeSlicing);
+            else
+              Components.GlobalReflectionProbe.RefreshReflection(false);
+#if !ENVIRO_HDRP
+            //Update Default Reflections
+#if UNITY_EDITOR
+            if((reflectionSettings.updateDefaultEnvironmentReflections && UnityEngine.SceneManagement.SceneManager.GetActiveScene() == gameObject.scene) || (reflectionSettings.updateDefaultEnvironmentReflections && EnviroSkyMgr.instance != null && EnviroSkyMgr.instance.dontDestroy))
+#else
+            if(reflectionSettings.updateDefaultEnvironmentReflections)
+#endif
+            {
+                StartCoroutine(UpdateDefaultReflections());
+            }
+            else
+            {
+                RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Skybox;
+            }
+#endif
     }
+
+    private IEnumerator UpdateDefaultReflections()
+    {
+        //Wait for 7 frames in case of timeslicing
+        for (int i = 0; i < 8; i++)
+        {
+            yield return null;
+        }
+
+        RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Custom;
+
+        if(defaultSkyReflectionTex == null || defaultSkyReflectionTex.height != Components.GlobalReflectionProbe.myProbe.resolution || defaultSkyReflectionTex.width != Components.GlobalReflectionProbe.myProbe.resolution)
+        {
+            if(defaultSkyReflectionTex != null)
+            DestroyImmediate(defaultSkyReflectionTex);
+        
+            defaultSkyReflectionTex = new Cubemap(Components.GlobalReflectionProbe.myProbe.resolution, Components.GlobalReflectionProbe.myProbe.hdr ? TextureFormat.RGBAHalf : TextureFormat.RGBA32, true);
+            defaultSkyReflectionTex.name = "Enviro Default Sky Reflection";
+        }
+
+        if(Components.GlobalReflectionProbe.myProbe.texture != null)   
+        Graphics.CopyTexture(Components.GlobalReflectionProbe.myProbe.texture, defaultSkyReflectionTex as Texture);
+            
+        RenderSettings.customReflection = defaultSkyReflectionTex;
+    } 
     /// <summary>
     /// Updates ambient lighting.
     /// </summary>
     public void UpdateAmbientLight()
     {
-        // float intensity = lightSettings.ambientIntensity.Evaluate(GameTime.solarTime);
-        float intensity = Mathf.Lerp(lightSettings.ambientIntensity.Evaluate(GameTime.solarTime), lightSettings.ambientIntensity.Evaluate(GameTime.solarTime) * 0.25f, GameTime.lunarTime * (1f - GameTime.solarTime));
+         float intensity = lightSettings.ambientIntensity.Evaluate(GameTime.solarTime) * ambientLightIntensityMod;
+        //float intensity = Mathf.Lerp(lightSettings.ambientIntensity.Evaluate(GameTime.solarTime), lightSettings.ambientIntensity.Evaluate(GameTime.solarTime) * 0.25f, GameTime.lunarTime * (1f - GameTime.solarTime));
 
         switch (lightSettings.ambientMode)
         {
@@ -1522,7 +1636,6 @@ public class EnviroCore : MonoBehaviour
                 Color lightClr = Color.Lerp(lightSettings.LightColor.Evaluate(GameTime.solarTime), currentWeatherLightMod, currentWeatherLightMod.a);
                 MainLight.color = Color.Lerp(lightClr, interiorZoneSettings.currentInteriorDirectLightMod, interiorZoneSettings.currentInteriorDirectLightMod.a);
             }
-
 #else
                 Color lightClr = Color.Lerp(lightSettings.LightColor.Evaluate(GameTime.solarTime), currentWeatherLightMod, currentWeatherLightMod.a);
                 MainLight.color = Color.Lerp(lightClr, interiorZoneSettings.currentInteriorDirectLightMod, interiorZoneSettings.currentInteriorDirectLightMod.a);
@@ -1542,7 +1655,7 @@ public class EnviroCore : MonoBehaviour
                     lightIntensity = lightSettings.directLightSunIntensity.Evaluate(GameTime.solarTime) * lightSettings.lightIntensityLuxMult * 250f;
                 }
 #else
-                lightIntensity = lightSettings.directLightSunIntensity.Evaluate(GameTime.solarTime);
+                lightIntensity = lightSettings.directLightSunIntensity.Evaluate(GameTime.solarTime) * directLightIntensityMod;
 #endif
 
                 Components.Sun.transform.LookAt(new Vector3(transform.position.x, transform.position.y - lightSettings.directLightAngleOffset, transform.position.z));
@@ -1563,7 +1676,7 @@ public class EnviroCore : MonoBehaviour
                     lightIntensity = lightSettings.directLightMoonIntensity.Evaluate(GameTime.lunarTime) * lightSettings.lightIntensityLuxMult * 250f;
                 }
 #else
-                lightIntensity = lightSettings.directLightMoonIntensity.Evaluate(GameTime.lunarTime);
+                lightIntensity = lightSettings.directLightMoonIntensity.Evaluate(GameTime.lunarTime) * directLightIntensityMod;
 #endif
 
                 Components.Moon.transform.LookAt(new Vector3(transform.position.x, transform.position.y - lightSettings.directLightAngleOffset, transform.position.z));
@@ -1578,6 +1691,7 @@ public class EnviroCore : MonoBehaviour
             {
                 MainLightHDRP.SetIntensity(lightIntensity * currentLightIntensityMod);
                 MainLightHDRP.SetShadowDimmer(Mathf.Clamp01(lightSettings.shadowIntensity.Evaluate(GameTime.solarTime) + shadowIntensityMod));
+                MainLightHDRP.volumetricDimmer = globalVolumeLightIntensity;
             }
 
 #else
@@ -1634,8 +1748,8 @@ public class EnviroCore : MonoBehaviour
             }
 
 #else
-            lightIntensitySun = lightSettings.directLightSunIntensity.Evaluate(GameTime.solarTime);
-            lightIntensityMoon = lightSettings.directLightMoonIntensity.Evaluate(GameTime.lunarTime) * (1 - GameTime.solarTime);
+            lightIntensitySun = lightSettings.directLightSunIntensity.Evaluate(GameTime.solarTime) * directLightIntensityMod;
+            lightIntensityMoon = lightSettings.directLightMoonIntensity.Evaluate(GameTime.lunarTime) * (1 - GameTime.solarTime) * directLightIntensityMod;
 #endif
             Components.Sun.transform.LookAt(new Vector3(transform.position.x, transform.position.y - lightSettings.directLightAngleOffset, transform.position.z));
 
@@ -1668,6 +1782,7 @@ public class EnviroCore : MonoBehaviour
                {
                     AdditionalLightHDRP.SetShadowDimmer(Mathf.Clamp01(lightSettings.shadowIntensity.Evaluate(GameTime.solarTime) + shadowIntensityMod));
                     AdditionalLightHDRP.SetIntensity(lightIntensityMoon * currentLightIntensityMod);     
+                    AdditionalLightHDRP.volumetricDimmer = globalVolumeLightIntensity;
                }
 #else 
             AdditionalLight.intensity = Mathf.Lerp(AdditionalLight.intensity, lightIntensityMoon, Time.deltaTime * lightSettings.lightIntensityTransitionSpeed);
@@ -1691,18 +1806,6 @@ public class EnviroCore : MonoBehaviour
             }
 #endif
         }
-
-//HDRP Volumetric Lighting   
-#if ENVIRO_HD && ENVIRO_HDRP
-                if(EnviroSky.instance != null)
-                {           
-                  if(MainLightHDRP = null)
-                     MainLightHDRP.SetLightDimmer(MainLightHDRP.lightDimmer, EnviroSky.instance.globalVolumeLightIntensity);
-
-                  if(AdditionalLightHDRP != null)
-                     AdditionalLightHDRP.SetLightDimmer(AdditionalLightHDRP.lightDimmer, EnviroSky.instance.globalVolumeLightIntensity);                   
-                }
-#endif
     }
     /// <summary>
     /// Updates lighting and sky in scene view to match runtime settings on start.
@@ -1898,9 +2001,13 @@ public class EnviroCore : MonoBehaviour
     {
         if (lightningEffect != null)
             StartCoroutine(PlayLightningEffect(new Vector3(transform.position.x + UnityEngine.Random.Range(-weatherSettings.lightningRange, weatherSettings.lightningRange), weatherSettings.lightningHeight, transform.position.z + UnityEngine.Random.Range(-weatherSettings.lightningRange, weatherSettings.lightningRange))));
-
-        int i = UnityEngine.Random.Range(0, audioSettings.ThunderSFX.Count);
-        Audio.AudioSourceThunder.PlayOneShot(audioSettings.ThunderSFX[i]);
+        
+        if (audioSettings.ThunderSFX.Count > 0)
+        {
+            int i = UnityEngine.Random.Range(0, audioSettings.ThunderSFX.Count);
+            Audio.AudioSourceThunder.PlayOneShot(audioSettings.ThunderSFX[i]);
+        }
+        
         Components.LightningGenerator.Lightning();
     }
 
@@ -2098,6 +2205,60 @@ public class EnviroCore : MonoBehaviour
         }
     }
 
+    void RenderSatCamera(Camera targetCam, Camera.MonoOrStereoscopicEye eye)
+    {
+        targetCam.fieldOfView = PlayerCamera.fieldOfView;
+        targetCam.aspect = PlayerCamera.aspect;
+
+        switch (eye)
+        {
+            case Camera.MonoOrStereoscopicEye.Mono:
+                targetCam.transform.position = PlayerCamera.transform.position;
+                targetCam.transform.rotation = PlayerCamera.transform.rotation;
+                targetCam.worldToCameraMatrix = PlayerCamera.worldToCameraMatrix;
+                targetCam.Render();
+                break;
+
+            case Camera.MonoOrStereoscopicEye.Left:
+
+                targetCam.transform.position = PlayerCamera.transform.position;
+                targetCam.transform.rotation = PlayerCamera.transform.rotation;
+                targetCam.projectionMatrix = PlayerCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
+                targetCam.worldToCameraMatrix = PlayerCamera.GetStereoViewMatrix(Camera.StereoscopicEye.Left);
+                targetCam.Render();
+
+                /*	if (EnviroSky.instance.singlePassVR == true) 
+                    {
+                       if (targetCam == EnviroSky.instance.skyCamera && spSkyCam != null) {
+                            spSkyCam.fieldOfView = EnviroSky.instance.PlayerCamera.fieldOfView;	
+                            spSkyCam.aspect = EnviroSky.instance.PlayerCamera.aspect;
+                            spSkyCam.projectionMatrix = EnviroSky.instance.PlayerCamera.GetStereoProjectionMatrix (Camera.StereoscopicEye.Right);
+                            spSkyCam.worldToCameraMatrix = EnviroSky.instance.PlayerCamera.GetStereoViewMatrix (Camera.StereoscopicEye.Right);
+                            spSkyCam.Render ();
+                            material.SetTexture ("_SkySPSR", spSkytex);
+                        }
+                    }*/
+                break;
+
+            case Camera.MonoOrStereoscopicEye.Right:
+                targetCam.transform.position = PlayerCamera.transform.position;
+                targetCam.transform.rotation = PlayerCamera.transform.rotation;
+                targetCam.projectionMatrix = PlayerCamera.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+                targetCam.worldToCameraMatrix = PlayerCamera.GetStereoViewMatrix(Camera.StereoscopicEye.Right);
+                targetCam.Render();
+                break;
+        }
+    } 
+#if ENVIRO_HD
+    public void UpdateSatelliteRender()
+    {
+        if (EnviroSky.instance.satCamera != null)
+        {
+            RenderSatCamera(EnviroSky.instance.satCamera, Camera.MonoOrStereoscopicEye.Mono);    
+            RenderSettings.skybox.SetTexture("_SatTex", EnviroSky.instance.satCamera.targetTexture);
+        }
+    }
+#endif
     public void RegisterZone(EnviroZone zoneToAdd)
     {
         Weather.zones.Add(zoneToAdd);
@@ -2327,12 +2488,34 @@ public class EnviroCore : MonoBehaviour
 */
     }
 
+#if ENVIRO_HDRP
+        public UnityEngine.Rendering.VolumeProfile GetDefaultSkyAndFogProfile(string name)
+        {
+#if UNITY_EDITOR
+            string[] assets = UnityEditor.AssetDatabase.FindAssets(name, null);
+
+            for (int idx = 0; idx < assets.Length; idx++)
+            {
+                string path = UnityEditor.AssetDatabase.GUIDToAssetPath(assets[idx]);
+
+                if (path.Contains(name + ".asset")) 
+                {
+                    return UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.VolumeProfile>(path);
+                }
+            }
+#endif
+            return null;
+        }
+#endif
+
 
     #endregion
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     #region Third Party
 #if AURA_IN_PROJECT
     public EnviroAura2Config enviroAura2Config = new EnviroAura2Config();
+    public Aura2API.AuraCamera[] auraCameras;
+    public Aura2API.AuraLight[] auraDirLight;
 
     public void UpdateAura2(EnviroWeatherPreset id, bool withTransition)
     {
@@ -2349,39 +2532,34 @@ public class EnviroCore : MonoBehaviour
             enviroAura2Config.aura2GlobalAmbientLight = Mathf.Lerp(enviroAura2Config.aura2GlobalAmbientLight, id.enviroAura2Config.aura2GlobalAmbientLight, speed);
             enviroAura2Config.aura2GlobalExtinction = Mathf.Lerp(enviroAura2Config.aura2GlobalExtinction, id.enviroAura2Config.aura2GlobalExtinction, speed);
 
-            Aura2API.AuraCamera[] auraCameras = Aura2API.Aura.GetAuraCameras();
-
             for (int i = 0; i < auraCameras.Length; i++)
-            {
+            { 
                 //Check if aura is not ready
                 if (auraCameras[i].frustumSettings.baseSettings == null)
                 {
                     auraCameras[i].frustumSettings.baseSettings = new Aura2API.AuraBaseSettings();
                     Debug.Log("No Aura 2 Basesetting. Enviro will create new one.");
                 }
-
+ 
                 auraCameras[i].frustumSettings.baseSettings.density = enviroAura2Config.aura2GlobalDensity;
                 auraCameras[i].frustumSettings.baseSettings.scattering = enviroAura2Config.aura2GlobalScattering;
                 auraCameras[i].frustumSettings.baseSettings.ambientLightingStrength = enviroAura2Config.aura2GlobalAmbientLight;
                 auraCameras[i].frustumSettings.baseSettings.extinction = enviroAura2Config.aura2GlobalExtinction;
             }
 
-            Aura2API.AuraLight[] dirLight = Aura2API.Aura.GetAuraLights(LightType.Directional);
-            for (int i = 0; i < dirLight.Length; i++)
+            for (int i = 0; i < auraDirLight.Length; i++)
             {
-                if(dirLight[i].gameObject.name == "Enviro Directional Light")
+                if(auraDirLight[i].gameObject.name == "Enviro Directional Light")
                 {
-                    dirLight[i].strength = EnviroSkyMgr.instance.aura2DirectionalLightIntensity.Evaluate(GameTime.solarTime);
+                    auraDirLight[i].strength = EnviroSkyMgr.instance.aura2DirectionalLightIntensity.Evaluate(GameTime.solarTime);
                 }
 
-                if(dirLight[i].gameObject.name == "Enviro Directional Light - Moon")
+                if(auraDirLight[i].gameObject.name == "Enviro Directional Light - Moon")
                 {
-                    dirLight[i].strength = EnviroSkyMgr.instance.aura2DirectionalLightIntensityMoon.Evaluate(GameTime.lunarTime);
+                    auraDirLight[i].strength = EnviroSkyMgr.instance.aura2DirectionalLightIntensityMoon.Evaluate(GameTime.lunarTime);
                 }
             }
-
-            }
-
+        }
     }
 #endif
     #endregion

@@ -9,6 +9,7 @@
 		CGPROGRAM
 		#pragma vertex vert
 		#pragma fragment frag
+		#pragma multi_compile __ ENVIROURP
 		#include "UnityCG.cginc"
 
 		UNITY_DECLARE_SCREENSPACE_TEXTURE(_LowResTexture);
@@ -46,7 +47,14 @@
 		UNITY_SETUP_INSTANCE_ID(v); 
 		UNITY_INITIALIZE_OUTPUT(v2f, o); 
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
-		o.pos = UnityObjectToClipPos(v.vertex);
+#if defined(ENVIROURP)
+	o.pos = float4(v.vertex.xyz,1.0);
+#if UNITY_UV_STARTS_AT_TOP
+    o.pos.y *= -1;
+#endif
+#else
+	o.pos = UnityObjectToClipPos(v.vertex);
+#endif
 		o.uv = UnityStereoTransformScreenSpaceTex(v.uv);
 		o.uv00 = v.uv - 0.5 * _LowResPixelSize;
 		o.uv10 = o.uv00 + float2(_LowResPixelSize.x, 0.0);

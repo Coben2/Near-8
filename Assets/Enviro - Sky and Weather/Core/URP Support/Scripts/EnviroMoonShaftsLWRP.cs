@@ -61,14 +61,14 @@ namespace UnityEngine.Rendering.LWRP
                 if (renderingData.cameraData.isSceneViewCamera)
                     return;
 
-                var src = renderer.cameraColorTarget;
+                //var src = renderer.cameraColorTarget;
                 var dest = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
                 if(blitPass == null)
-                    Create();
+                    Create(); 
 
                 CreateMaterialsAndTextures();
-                blitPass.Setup(myCam, src, dest, EnviroSkyMgr.instance.Components.Moon.transform, EnviroSkyMgr.instance.LightShaftsSettings.thresholdColorMoon.Evaluate(EnviroSkyMgr.instance.Time.solarTime), EnviroSkyMgr.instance.LightShaftsSettings.lightShaftsColorMoon.Evaluate(EnviroSkyMgr.instance.Time.solarTime));
+                blitPass.Setup(myCam, renderer, dest, EnviroSkyMgr.instance.Components.Moon.transform, EnviroSkyMgr.instance.LightShaftsSettings.thresholdColorMoon.Evaluate(EnviroSkyMgr.instance.Time.solarTime), EnviroSkyMgr.instance.LightShaftsSettings.lightShaftsColorMoon.Evaluate(EnviroSkyMgr.instance.Time.solarTime),false);
                 renderer.EnqueuePass(blitPass);
 
             }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine.Serialization;
 #if ENVIRO_LWRP && ENVIRO_HD
 namespace UnityEngine.Rendering.LWRP
@@ -63,8 +63,10 @@ namespace UnityEngine.Rendering.LWRP
             Shader.SetGlobalVector("_DistanceParams", new Vector4(-Mathf.Max(EnviroSky.instance.fogSettings.startDistance, 0.0f), 0, 0, 0));
             fogMat.SetFloat("_DitheringIntensity", EnviroSky.instance.fogSettings.fogDithering);
             Shader.SetGlobalTexture("_EnviroVolumeLightingTex", blackTexture);
+            fogMat.EnableKeyword("ENVIROURP");
         }
 
+       
         private void CreateFogMaterial()
         {
             if (EnviroSky.instance == null)
@@ -86,41 +88,51 @@ namespace UnityEngine.Rendering.LWRP
             if (!EnviroSky.instance.useFog)
             {
                 Shader shader = Shader.Find("Enviro/Standard/EnviroFogRenderingDisabled");
-                fogMat = new Material(shader);
-                if (shader == null)
-                    currentFogType = FogType.Disabled;
+                if (shader != null)
+                {
+                fogMat = new Material(shader);     
+                currentFogType = FogType.Disabled;
+                }
             }
             else if (!EnviroSky.instance.fogSettings.useSimpleFog)
             {
                 Shader shader = Shader.Find("Enviro/Standard/EnviroFogRendering");
+                if (shader != null)
+                {
                 fogMat = new Material(shader);
-                if (shader == null)
-                    currentFogType = FogType.Standard;
+                currentFogType = FogType.Standard;
+                }
             }
             else
             {
                 Shader shader = Shader.Find("Enviro/Standard/EnviroFogRenderingSimple");
-                if (shader == null)
-                    fogMat = new Material(shader);
-
+                if (shader != null)
+                {
+                fogMat = new Material(shader);
                 currentFogType = FogType.Simple;
+                }
             }
         }
-        private void UpdateMatrix()
+        private void UpdateMatrix(UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
             ///////////////////Matrix Information
-            if (myCam.stereoEnabled)
+            if (UnityEngine.XR.XRSettings.enabled && EnviroSky.instance.singlePassInstancedVR)
             {
-                // Both stereo eye inverse view matrices
+        #if UNITY_2020_3_OR_NEWER
+                Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix(0).inverse;
+                Matrix4x4 right_world_from_view = renderingData.cameraData.GetViewMatrix(1).inverse;
+                Matrix4x4 left_screen_from_view = renderingData.cameraData.GetProjectionMatrix(0);
+                Matrix4x4 right_screen_from_view = renderingData.cameraData.GetProjectionMatrix(1);
+        #else
                 Matrix4x4 left_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
                 Matrix4x4 right_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
-
-                // Both stereo eye inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
                 Matrix4x4 left_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
                 Matrix4x4 right_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+        #endif       
+
                 Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(left_screen_from_view, true).inverse;
                 Matrix4x4 right_view_from_screen = GL.GetGPUProjectionMatrix(right_screen_from_view, true).inverse;
-
+ 
                 // Negate [1,1] to reflect Unity's CBuffer state
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3)
                 {
@@ -134,25 +146,22 @@ namespace UnityEngine.Rendering.LWRP
                 Shader.SetGlobalMatrix("_RightViewFromScreen", right_view_from_screen);
             }
             else
-            {
+            { 
                 // Main eye inverse view matrix
-                Matrix4x4 left_world_from_view = myCam.cameraToWorldMatrix;
+                Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix().inverse;
 
                 // Inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
-                Matrix4x4 screen_from_view = myCam.projectionMatrix;
+                Matrix4x4 screen_from_view = renderingData.cameraData.GetProjectionMatrix();
                 Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(screen_from_view, true).inverse;
 
                 // Negate [1,1] to reflect Unity's CBuffer state
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3)
                     left_view_from_screen[1, 1] *= -1;
-
+ 
                 // Store matrices
                 Shader.SetGlobalMatrix("_LeftWorldFromView", left_world_from_view);
                 Shader.SetGlobalMatrix("_LeftViewFromScreen", left_view_from_screen);
             }
-            //////////////////////////////
-
-
         }
 
         public override void Create()
@@ -168,28 +177,30 @@ namespace UnityEngine.Rendering.LWRP
 
         public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
-
             if (renderingData.cameraData.camera.cameraType == CameraType.Preview)
                 return;
-
+ 
             myCam = renderingData.cameraData.camera;
 
             if (EnviroSky.instance != null && EnviroSky.instance.useFog && EnviroSky.instance.PlayerCamera != null)
             {           
-                var src = renderer.cameraColorTarget;
+                if(EnviroSky.instance.RenderEnviroOnThisCam(renderingData.cameraData.camera) == false)
+                    return;
+
+                //var src = renderer.cameraColorTarget;
                 var dest = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
                 if (renderingData.cameraData.isSceneViewCamera && !EnviroSky.instance.showFogInEditor)
                     return;
 
-                    UpdateMatrix();
-
+                    UpdateMatrix(renderingData);
+ 
                     RenderFog();
 
-                if (blitPass == null)
+                if (blitPass == null|| fogMat == null)
                     Create();
 
-                    blitPass.Setup(src, dest);
+                    blitPass.Setup(renderer, dest, fogMat);
 
                     renderer.EnqueuePass(blitPass);
             }

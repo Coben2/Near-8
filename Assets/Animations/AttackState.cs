@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AttackState : StateMachineBehaviour
 {
@@ -8,13 +9,15 @@ public class AttackState : StateMachineBehaviour
     //public float Speed = 1f;
     CreditsVariable credits;
     public float waitTilDamage;
+    public Text assigned;
 
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
+        assigned = GameObject.FindGameObjectWithTag("assigned").GetComponent<Text>();
         player = GameObject.FindGameObjectWithTag("Player").transform;
         credits = GameObject.FindGameObjectWithTag("Player").GetComponent<CreditsVariable>();
-
+        assigned.color = Color.black;
         waitTilDamage = 10f;
         //animator.GetComponent<LookAtCoroutine>().DoRotate();
     }
@@ -31,6 +34,7 @@ public class AttackState : StateMachineBehaviour
 
         if (waitTilDamage <= 0)
         {
+            assigned.color = Color.cyan;
             credits.DrainCredits();
             waitTilDamage = 10f;
         }

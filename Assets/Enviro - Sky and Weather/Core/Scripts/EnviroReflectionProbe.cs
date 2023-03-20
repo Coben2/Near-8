@@ -20,8 +20,6 @@ public class EnviroReflectionProbe : MonoBehaviour
     public Camera renderCam;
     public bool useEnviroEffects = true;
     [HideInInspector]
-    public bool rendering = false;
-    [HideInInspector]
     public ReflectionProbe myProbe;
     public bool customRendering = false;
 
@@ -37,7 +35,7 @@ public class EnviroReflectionProbe : MonoBehaviour
 
     #region Private Var
     // Privates
-    private Camera bakingCam;
+    public Camera bakingCam;
     private bool currentMode = false;
     private int currentRes;
     private RenderTexture cubemap;
@@ -49,7 +47,6 @@ public class EnviroReflectionProbe : MonoBehaviour
     private Material bakeMat = null;
     private Material convolutionMat;
     private Coroutine refreshing;
-    private bool paused = false;
 
     private int renderID;
 
@@ -90,7 +87,6 @@ public class EnviroReflectionProbe : MonoBehaviour
                     CreateTexturesAndMaterial();
                     CreateRenderCamera();
                     currentRes = myProbe.resolution;
-                    rendering = false;
                     StartCoroutine(RefreshFirstTime());
                 }
             }
@@ -118,7 +114,6 @@ public class EnviroReflectionProbe : MonoBehaviour
             CreateTexturesAndMaterial();
             CreateRenderCamera();
             currentRes = myProbe.resolution;
-            rendering = false;
             StartCoroutine(RefreshFirstTime());        
         }
         else
@@ -135,6 +130,8 @@ public class EnviroReflectionProbe : MonoBehaviour
 
         if (!standalone && myProbe != null)
             myProbe.enabled = false;
+
+        RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Skybox;
     }
     private void Cleanup()
     {
@@ -213,7 +210,6 @@ public class EnviroReflectionProbe : MonoBehaviour
                     eSky.customRenderingSettings.useVolumeClouds = EnviroSkyMgr.instance.useVolumeClouds;
                     eSky.customRenderingSettings.useFog = useFog;
                 }
-
             }
 #endif
 
@@ -257,10 +253,17 @@ public class EnviroReflectionProbe : MonoBehaviour
             return;
 
         if (cubemap != null)
+        {
+            cubemap.Release();
             DestroyImmediate(cubemap);
+        }
 
         if (finalCubemap != null)
+        {
+            finalCubemap.Release();
             DestroyImmediate(finalCubemap);
+        }
+            
 
         int resolution = myProbe.resolution;
 
@@ -272,6 +275,7 @@ public class EnviroReflectionProbe : MonoBehaviour
         cubemap.useMipMap = true;
         cubemap.autoGenerateMips = false;
         cubemap.name = "Enviro Reflection Temp Cubemap";
+        cubemap.filterMode = FilterMode.Trilinear;
         cubemap.Create();
 
         finalCubemap = new RenderTexture(resolution, resolution, 16, format, RenderTextureReadWrite.Linear);
@@ -279,6 +283,7 @@ public class EnviroReflectionProbe : MonoBehaviour
         finalCubemap.useMipMap = true;
         finalCubemap.autoGenerateMips = false;
         finalCubemap.name = "Enviro Reflection Final Cubemap";
+        finalCubemap.filterMode = FilterMode.Trilinear;
         finalCubemap.Create();
     }
     //Create the textures
@@ -288,7 +293,7 @@ public class EnviroReflectionProbe : MonoBehaviour
             mirror = new Material(Shader.Find("Hidden/Enviro/ReflectionProbe"));
 
         if (convolutionMat == null)
-            convolutionMat = new Material(Shader.Find("Hidden/CubeBlur"));
+            convolutionMat = new Material(Shader.Find("Hidden/CubeBlurEnviro"));
 
         int resolution = myProbe.resolution;
 
@@ -325,7 +330,7 @@ public class EnviroReflectionProbe : MonoBehaviour
 
         if (customRendering)
         {
-            if (rendering == true || paused)
+            if (refreshing != null)
                 return;
 
             CreateTexturesAndMaterial();
@@ -350,7 +355,7 @@ public class EnviroReflectionProbe : MonoBehaviour
                 refreshing = StartCoroutine(RefreshInstant(renderTexture, mirrorTexture));
             }
         }
-        else if (!paused)
+        else
         {
           if(hdprobe != null)
              hdprobe.RequestRenderNextUpdate();
@@ -358,7 +363,7 @@ public class EnviroReflectionProbe : MonoBehaviour
 #else
         if (customRendering)
         {
-            if (rendering == true || paused)
+            if (refreshing != null)
                 return;
 
             CreateTexturesAndMaterial();
@@ -383,9 +388,10 @@ public class EnviroReflectionProbe : MonoBehaviour
                 refreshing = StartCoroutine(RefreshInstant(renderTexture, mirrorTexture));
             }
         } 
-        else if (!paused)
+        else
         {
-                StartCoroutine(RefreshUnity());
+            //myProbe.RenderProbe();
+            StartCoroutine(RefreshUnity());
         }
 #endif
     }
@@ -413,13 +419,17 @@ public class EnviroReflectionProbe : MonoBehaviour
         {
             renderCam.transform.rotation = orientations[face];
             renderCam.Render();
-            Graphics.Blit(renderTex, mirrorTex, mirror);
-            Graphics.CopyTexture(mirrorTex, 0, 0, cubemap, face, 0);      
+
+            if(mirrorTex != null)
+            {
+                Graphics.Blit(renderTex, mirrorTex, mirror);
+                Graphics.CopyTexture(mirrorTex, 0, 0, cubemap, face, 0);   
+            }   
         }
 
-        ConvolutionCubemap();
+         ConvolutionCubemap();
 #if ENVIRO_HDRP
-            hdprobe.SetTexture(ProbeSettings.Mode.Custom, finalCubemap);
+        hdprobe.SetTexture(ProbeSettings.Mode.Custom, finalCubemap);
 #else
         myProbe.customBakedTexture = finalCubemap;
 #endif
@@ -436,11 +446,16 @@ public class EnviroReflectionProbe : MonoBehaviour
         for (int face = 0;  face < 6; face++)
         {
             yield return null;
+            //yield return new WaitForSeconds(1f);
             // print("Bake Face " + face.ToString());
             renderCam.transform.rotation = orientations[face];      
-            renderCam.Render();             
-            Graphics.Blit(renderTex, mirrorTex, mirror);
-            Graphics.CopyTexture(mirrorTex, 0, 0, cubemap, face, 0);
+            renderCam.Render();
+
+            if(mirrorTex != null)
+            {         
+                Graphics.Blit(renderTex, mirrorTex, mirror);
+                Graphics.CopyTexture(mirrorTex, 0, 0, cubemap, face, 0);
+            }
             //ClearTextures();           
         }
 
@@ -486,13 +501,56 @@ public class EnviroReflectionProbe : MonoBehaviour
         GL.Clear(true, true, Color.clear);
         RenderTexture.active = rt;
     }
+ 
+
+    //This is not a proper convolution and very hacky to get anywhere near of unity realtime reflection probe mip convolution.
     private void ConvolutionCubemap()
     {
-        //7 mip levels for reflections 
         int mipCount = 7;
 
         GL.PushMatrix();
         GL.LoadOrtho();
+
+        cubemap.GenerateMips();
+
+        float texel = 1f;
+        switch(finalCubemap.width)
+        {
+
+            case 16:
+            texel = 1f;
+            break;
+
+            case 32:
+            texel = 1f;
+            break;
+
+            case 64:
+            texel = 2f;
+            break;
+
+            case 128:
+            texel = 4f;
+            break;
+
+            case 256:
+            texel = 8f;
+            break;
+
+            case 512:
+            texel = 14f;
+            break;
+
+            case 1024:
+            texel = 30f;
+            break;
+ 
+            case 2048:
+            texel = 60f;
+            break;
+        }
+
+        float res = finalCubemap.width;
 
         for (int mip = 0; mip < mipCount + 1; mip++)
         {
@@ -508,18 +566,15 @@ public class EnviroReflectionProbe : MonoBehaviour
 
             if (dstMip == mipCount)
                 break;
-
-            int mipR = finalCubemap.width / (int)Mathf.Pow(2, mip);
-
-            // Get those values right here...
+        
+            float texelSize = (texel * dstMip) / res;
+        
             convolutionMat.SetTexture("_MainTex", finalCubemap);
-            convolutionMat.SetFloat("_Texel", 7f / mipR);
+            convolutionMat.SetFloat("_Texel", texelSize);        
             convolutionMat.SetFloat("_Level", mip);
-            convolutionMat.SetFloat("_Scale", 0.001f * mip);
             convolutionMat.SetPass(0);
 
-
-            //Create cubic environment for unity CubeBlur Shader using GL.
+            res *= 0.75f;
 
             // Positive X
             Graphics.SetRenderTarget(cubemap, dstMip, CubemapFace.PositiveX);

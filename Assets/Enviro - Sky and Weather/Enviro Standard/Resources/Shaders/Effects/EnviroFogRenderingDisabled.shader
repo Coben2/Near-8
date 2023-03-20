@@ -22,7 +22,7 @@ Shader "Enviro/Standard/EnviroFogRenderingDisabled"
 	#include "UnityCG.cginc" 
 
 	UNITY_DECLARE_SCREENSPACE_TEXTURE(_MainTex);
-	uniform sampler2D _EnviroVolumeLightingTex;
+	UNITY_DECLARE_SCREENSPACE_TEXTURE(_EnviroVolumeLightingTex);
 	uniform float4 _MainTex_TexelSize;
 	uniform float4 _EnviroParams;
 	uniform float _EnviroVolumeDensity;
@@ -50,11 +50,11 @@ Shader "Enviro/Standard/EnviroFogRenderingDisabled"
 		UNITY_SETUP_INSTANCE_ID(v); //Insert
 		UNITY_INITIALIZE_OUTPUT(v2f, o); //Insert
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); //Ins
-		o.pos = v.vertex * float4(2, 2, 1, 1) + float4(-1, -1, 0, 0);
+		o.pos = UnityObjectToClipPos(v.vertex);
 		o.uv.xy = v.texcoord.xy;
-#if UNITY_UV_STARTS_AT_TOP
-		if (_MainTex_TexelSize.y > 0)
-			o.uv.y = 1 - o.uv.y;
+#if UNITY_UV_STARTS_AT_TOP 
+		//if (_MainTex_TexelSize.y > 0)
+		//	o.uv.y = 1 - o.uv.y;
 #endif 
 		return o;
 	}
@@ -78,7 +78,7 @@ Shader "Enviro/Standard/EnviroFogRenderingDisabled"
 		float4 source = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex, UnityStereoTransformScreenSpaceTex(i.uv));
 		
 		#if defined (ENVIROVOLUMELIGHT)
-			float4 volumeLighting = tex2D(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(i.uv));
+			float4 volumeLighting = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(i.uv));
 			volumeLighting *= _EnviroParams.x; 
 			if (_EnviroParams.w == 1)
 			{

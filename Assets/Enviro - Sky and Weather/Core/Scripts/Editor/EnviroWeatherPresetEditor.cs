@@ -426,9 +426,10 @@ public class EnviroWeatherPresetEditor : Editor {
         EditorGUILayout.EndVertical();
 #endif
 
-
+ 
         // END
         EditorGUILayout.EndVertical ();
+        serializedObj.ApplyModifiedProperties();
 		EditorUtility.SetDirty (target);
 	}
 }

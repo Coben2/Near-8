@@ -18,14 +18,14 @@ Shader "Enviro/Standard/SkyboxSimple"
 	
     SubShader
     {
-		Lod 300
-        Tags { "Queue"="Background" "RenderType"="Background" "PreviewType"="Skybox" "IgnoreProjector"="True" }
+		Tags{ "Queue" = "Background" "RenderType" = "Background" "PreviewType" = "Skybox" }
+		Cull Off
+		Fog{ Mode Off }
+		ZWrite Off
 		
         Pass
         {
-            Cull Back
-            ZWrite Off
-		 
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -550,5 +550,5 @@ Shader "Enviro/Standard/SkyboxSimple"
 			}
 
     }
-    FallBack Off
+    FallBack "None"
 }

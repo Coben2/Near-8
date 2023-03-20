@@ -6,7 +6,7 @@
 	sampler3D _NoiseTexture;
 	sampler2D _DitherTexture;
 
-	float4x4 _WorldViewProj;
+	float4x4 _WorldViewProj; 
 	float4x4 _WorldViewProj_SP;
 	float4x4 _MyLightMatrix0;
 	float4x4 _MyWorld2Shadow;
@@ -15,6 +15,10 @@
 	float4x4 _RightWorldFromView;
 	float4x4 _LeftViewFromScreen;
 	float4x4 _RightViewFromScreen;
+
+	float _ShadowDistance;
+
+	float _Eye;
 
 	float3 _CameraForward;
 	// x: scattering coef, y: extinction coef, z: range w: skybox extinction coef
@@ -31,55 +35,49 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline fixed4 GetCascadeWeights_SplitSpheres(float3 wpos)
-	{
-		float3 fromCenter0 = wpos.xyz - unity_ShadowSplitSpheres[0].xyz;
-		float3 fromCenter1 = wpos.xyz - unity_ShadowSplitSpheres[1].xyz;
-		float3 fromCenter2 = wpos.xyz - unity_ShadowSplitSpheres[2].xyz;
-		float3 fromCenter3 = wpos.xyz - unity_ShadowSplitSpheres[3].xyz;
-		float4 distances2 = float4(dot(fromCenter0, fromCenter0), dot(fromCenter1, fromCenter1), dot(fromCenter2, fromCenter2), dot(fromCenter3, fromCenter3));
-
-		fixed4 weights = float4(distances2 < unity_ShadowSplitSqRadii);
-		weights.yzw = saturate(weights.yzw - weights.xyz);
+    float4 GetCascadeWeights_SplitSpheres(float3 wpos)
+    {
+		float3 fromCenter0 = wpos - unity_ShadowSplitSpheres[0].xyz;
+		float3 fromCenter1 = wpos - unity_ShadowSplitSpheres[1].xyz;
+		float3 fromCenter2 = wpos - unity_ShadowSplitSpheres[2].xyz;
+		float3 fromCenter3 = wpos - unity_ShadowSplitSpheres[3].xyz;
+		float4 distances2 = float4(dot(fromCenter0,fromCenter0), dot(fromCenter1,fromCenter1), dot(fromCenter2,fromCenter2), dot(fromCenter3,fromCenter3));
+		float4 weights = float4(distances2 >= unity_ShadowSplitSqRadii);
 		return weights;
-	}
+    }
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    float4 GetCascadeShadowCoord(float4 pos, float4 cascadeWeights)
+    {
+        return mul(unity_WorldToShadow[(int)dot(cascadeWeights, float4(1,1,1,1))], pos);
+    }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	inline float4 GetCascadeShadowCoord(float4 wpos, fixed4 cascadeWeights)
-	{
-		float3 sc0 = mul(unity_WorldToShadow[0], wpos).xyz;
-		float3 sc1 = mul(unity_WorldToShadow[1], wpos).xyz;
-		float3 sc2 = mul(unity_WorldToShadow[2], wpos).xyz;
-		float3 sc3 = mul(unity_WorldToShadow[3], wpos).xyz;
-		
-		float4 shadowMapCoordinate = float4(sc0 * cascadeWeights[0] + sc1 * cascadeWeights[1] + sc2 * cascadeWeights[2] + sc3 * cascadeWeights[3], 1);
-	#if defined(UNITY_REVERSED_Z)
-		float  noCascadeWeights = 1 - dot(cascadeWeights, float4(1, 1, 1, 1));
-		shadowMapCoordinate.z += noCascadeWeights;
-	#endif
-		return shadowMapCoordinate;
-	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		UNITY_DECLARE_SHADOWMAP(_CascadeShadowMapTexture);
-
+		//sampler2D _CascadeShadowMapTexture;
+	
 		float GetLightAttenuation(float3 wpos)
 		{
 			float atten = 0;
 #if defined (DIRECTIONAL) || defined (DIRECTIONAL_COOKIE)
-			atten = 1;
+			atten = 1.0f;
 #if defined (SHADOWS_DEPTH)
 			// sample cascade shadow map
 			float4 cascadeWeights = GetCascadeWeights_SplitSpheres(wpos);
 			bool inside = dot(cascadeWeights, float4(1, 1, 1, 1)) < 4;
 			float4 samplePos = GetCascadeShadowCoord(float4(wpos, 1), cascadeWeights);
+			float shadows = UNITY_SAMPLE_SHADOW(_CascadeShadowMapTexture, samplePos.xyz).r;
+			
+			atten = inside ? shadows : 1.0f; 
+         		
+			if(shadows > 0.0f)
+            	atten = 1.0f;  
 
-			atten = inside ? UNITY_SAMPLE_SHADOW(_CascadeShadowMapTexture, samplePos.xyz) : 1.0f;
-			atten = _LightShadowData.r + atten * (1 - _LightShadowData.r);
+			atten = saturate (lerp (shadows, 0.0, (distance (wpos, _WorldSpaceCameraPos.xyz) - _ShadowDistance) * 1.0));
 #endif
 
 #elif defined (SPOT)	
@@ -110,21 +108,6 @@
 			atten *= texCUBEbias(_LightTexture0, float4(mul(_MyLightMatrix0, half4(wpos, 1)).xyz, -8)).w;
 #endif //POINT_COOKIE
 #endif
-			return atten;
-		}
-
-
-		float GetLightAttenuationDir(float3 wpos)
-		{
-			float atten = 1;
-
-			// sample cascade shadow map
-			float4 cascadeWeights = GetCascadeWeights_SplitSpheres(wpos);
-			bool inside = dot(cascadeWeights, float4(1, 1, 1, 1)) < 4;
-			float4 samplePos = GetCascadeShadowCoord(float4(wpos, 1), cascadeWeights);
-
-			atten = inside ? UNITY_SAMPLE_SHADOW(_CascadeShadowMapTexture, samplePos.xyz) : 1.0f;
-			atten = _LightShadowData.r + atten * (1 - _LightShadowData.r);
 			return atten;
 		}
 

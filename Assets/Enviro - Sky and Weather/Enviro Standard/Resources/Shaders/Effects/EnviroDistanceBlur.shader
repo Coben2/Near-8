@@ -29,13 +29,14 @@ Shader "Hidden/EnviroDistanceBlur"
 		_MainTex("", any) = "" {}
 		_BaseTex("", any) = "" {}
 	}
-		SubShader
+		SubShader 
 	{
 		// 0: Prefilter
 		Pass
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#pragma multi_compile _ UNITY_COLORSPACE_GAMMA
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert
@@ -48,6 +49,7 @@ Shader "Hidden/EnviroDistanceBlur"
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#define ANTI_FLICKER 1
 		#pragma multi_compile _ UNITY_COLORSPACE_GAMMA
 		#include "../Core/EnviroBlurCore.cginc"
@@ -61,6 +63,7 @@ Shader "Hidden/EnviroDistanceBlur"
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert
 		#pragma fragment frag_downsample1
@@ -72,6 +75,7 @@ Shader "Hidden/EnviroDistanceBlur"
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#define ANTI_FLICKER 1
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert
@@ -84,6 +88,7 @@ Shader "Hidden/EnviroDistanceBlur"
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert
 		#pragma fragment frag_downsample2
@@ -95,6 +100,7 @@ Shader "Hidden/EnviroDistanceBlur"
 	{
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert_multitex
 		#pragma fragment frag_upsample
@@ -107,6 +113,7 @@ Shader "Hidden/EnviroDistanceBlur"
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
 		#define HIGH_QUALITY 1
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert_multitex
 		#pragma fragment frag_upsample
@@ -119,6 +126,7 @@ Shader "Hidden/EnviroDistanceBlur"
 		ZTest Always Cull Off ZWrite Off
 		CGPROGRAM
 		#pragma multi_compile _ UNITY_COLORSPACE_GAMMA
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert_multitex
 		#pragma fragment frag_upsample_final
@@ -132,6 +140,7 @@ Shader "Hidden/EnviroDistanceBlur"
 		CGPROGRAM
 		#define HIGH_QUALITY 1
 		#pragma multi_compile _ UNITY_COLORSPACE_GAMMA
+		#pragma multi_compile _ ENVIROURP
 		#include "../Core/EnviroBlurCore.cginc"
 		#pragma vertex vert_multitex
 		#pragma fragment frag_upsample_final

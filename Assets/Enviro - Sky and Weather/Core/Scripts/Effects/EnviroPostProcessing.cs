@@ -43,9 +43,10 @@ public class EnviroPostProcessing : MonoBehaviour
 #if ENVIRO_LWRP || ENVIRO_HDRP
         this.enabled = false;
         return;
+#else
+        CreateMaterialsAndTextures();
 #endif
 
-        CreateMaterialsAndTextures();
     }
 
     void OnDisable()

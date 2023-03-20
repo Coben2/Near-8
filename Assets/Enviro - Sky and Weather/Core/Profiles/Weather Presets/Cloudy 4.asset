@@ -142,7 +142,7 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 2
     m_NumAlphaKeys: 2
-  volumeLightIntensity: 0.25
+  volumeLightIntensity: 0.4
   shadowIntensityMod: 0
   heightFogDensity: 0
   SkyFogHeight: 1.88

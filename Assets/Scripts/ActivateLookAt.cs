@@ -1,23 +1,53 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Micosmo.SensorToolkit;
 
 public class ActivateLookAt : MonoBehaviour
 {
     LookAtCoroutine LookAt;
-    Transform player;
-    public float playerMoveTimer;
-    public float lookAtDuration;
-    private void OnTriggerEnter(Collider Col)
-    {
-        LookAt =  GetComponent<LookAtCoroutine>();
-        //playerMoveTimer
+    public Sensor TargetSensor;
+    private bool seen;
 
-        if (Col.gameObject.CompareTag("Player"))
+    private void Start()
+    {
+        LookAt = GetComponent<LookAtCoroutine>();
+        StartCoroutine(SeenRotate());
+
+    }
+    private void Update()
+    {
+        var target = TargetSensor.GetNearestDetection();
+        if (target != null)
         {
-            LookAt.DoRotate();
+            seen = true;
+        }
+        else
+        {
+            seen = false;
         }
     }
+    IEnumerator SeenRotate()
+    {
+        while (seen == true)
+        {
+            LookAt.DoRotate();
+            yield return new WaitForSeconds(3f);
+        }
+    }
+    //Transform player;
+    //public float playerMoveTimer;
+    //public float lookAtDuration;
+    //private void OnTriggerEnter(Collider Col)
+    //{
+    //    LookAt =  GetComponent<LookAtCoroutine>();
+    //    //playerMoveTimer
+
+    //    if (Col.gameObject.CompareTag("Player"))
+    //    {
+    //        LookAt.DoRotate();
+    //    }
+    //}
     //private void OnTriggerStay(Collider Col)
     //{
     //    if (Col.gameObject.CompareTag("Player"))

@@ -36,6 +36,7 @@ namespace UnityEngine.Rendering.LWRP
             Shader.SetGlobalVector("_SceneFogMode", new Vector4((int)sceneMode, EnviroSkyLite.instance.fogSettings.useRadialDistance ? 1 : 0, 0, 0));
             Shader.SetGlobalVector("_HeightParams", new Vector4(EnviroSkyLite.instance.fogSettings.height, FdotC, paramK, EnviroSkyLite.instance.fogSettings.heightDensity * 0.5f));
             Shader.SetGlobalVector("_DistanceParams", new Vector4(-Mathf.Max(EnviroSkyLite.instance.fogSettings.startDistance, 0.0f), 0, 0, 0));
+            material.EnableKeyword("ENVIROURP"); 
         }
 
     private void CreateFogMaterial ()
@@ -68,21 +69,26 @@ namespace UnityEngine.Rendering.LWRP
         }
     }
 
-        private void UpdateMatrix()
+        private void UpdateMatrix(UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
             ///////////////////Matrix Information
-            if (myCam.stereoEnabled)
+            if (UnityEngine.XR.XRSettings.enabled && UnityEngine.XR.XRSettings.stereoRenderingMode == XR.XRSettings.StereoRenderingMode.SinglePassInstanced)
             {
-                // Both stereo eye inverse view matrices
+        #if UNITY_2020_3_OR_NEWER
+                Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix(0).inverse;
+                Matrix4x4 right_world_from_view = renderingData.cameraData.GetViewMatrix(1).inverse;
+                Matrix4x4 left_screen_from_view = renderingData.cameraData.GetProjectionMatrix(0);
+                Matrix4x4 right_screen_from_view = renderingData.cameraData.GetProjectionMatrix(1);
+        #else
                 Matrix4x4 left_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Left).inverse;
                 Matrix4x4 right_world_from_view = myCam.GetStereoViewMatrix(Camera.StereoscopicEye.Right).inverse;
-
-                // Both stereo eye inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
                 Matrix4x4 left_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Left);
                 Matrix4x4 right_screen_from_view = myCam.GetStereoProjectionMatrix(Camera.StereoscopicEye.Right);
+        #endif     
+
                 Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(left_screen_from_view, true).inverse;
                 Matrix4x4 right_view_from_screen = GL.GetGPUProjectionMatrix(right_screen_from_view, true).inverse;
-
+ 
                 // Negate [1,1] to reflect Unity's CBuffer state
                 if (SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore && SystemInfo.graphicsDeviceType != UnityEngine.Rendering.GraphicsDeviceType.OpenGLES3)
                 {
@@ -96,12 +102,12 @@ namespace UnityEngine.Rendering.LWRP
                 Shader.SetGlobalMatrix("_RightViewFromScreen", right_view_from_screen);
             }
             else
-            {
+            { 
                 // Main eye inverse view matrix
-                Matrix4x4 left_world_from_view = myCam.cameraToWorldMatrix;
+                Matrix4x4 left_world_from_view = renderingData.cameraData.GetViewMatrix().inverse;
 
                 // Inverse projection matrices, plumbed through GetGPUProjectionMatrix to compensate for render texture
-                Matrix4x4 screen_from_view = myCam.projectionMatrix;
+                Matrix4x4 screen_from_view = renderingData.cameraData.GetProjectionMatrix();
                 Matrix4x4 left_view_from_screen = GL.GetGPUProjectionMatrix(screen_from_view, true).inverse;
 
                 // Negate [1,1] to reflect Unity's CBuffer state
@@ -112,9 +118,6 @@ namespace UnityEngine.Rendering.LWRP
                 Shader.SetGlobalMatrix("_LeftWorldFromView", left_world_from_view);
                 Shader.SetGlobalMatrix("_LeftViewFromScreen", left_view_from_screen);
             }
-            //////////////////////////////
-
-
         }
 
         public override void Create()
@@ -129,21 +132,19 @@ namespace UnityEngine.Rendering.LWRP
 
         public override void AddRenderPasses(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
-           
-
             if (renderingData.cameraData.camera.cameraType == CameraType.Preview)
                 return;
 
             myCam = renderingData.cameraData.camera;
-
+ 
             if (EnviroSkyLite.instance != null && EnviroSkyLite.instance.usePostEffectFog)
             {
-                var src = renderer.cameraColorTarget;
+                //var src = renderer.cameraColorTarget;
                 var dest = UnityEngine.Rendering.Universal.RenderTargetHandle.CameraTarget;
 
-                if (!renderingData.cameraData.isSceneViewCamera && renderingData.cameraData.camera == EnviroSkyLite.instance.PlayerCamera)
+                if (renderingData.cameraData.isSceneViewCamera || renderingData.cameraData.camera == EnviroSkyLite.instance.PlayerCamera)
                 {
-                    UpdateMatrix();
+                    UpdateMatrix(renderingData);
 
                     if (currentSimpleFog != EnviroSkyLite.instance.fogSettings.useSimpleFog)
                     {
@@ -154,10 +155,10 @@ namespace UnityEngine.Rendering.LWRP
 
                     RenderFog();
 
-                    if (blitPass == null)
+                    if (blitPass == null || material == null)
                         Create();
 
-                    blitPass.Setup(src, dest);
+                    blitPass.Setup(renderer, dest, material);
 
                     renderer.EnqueuePass(blitPass);
                 }

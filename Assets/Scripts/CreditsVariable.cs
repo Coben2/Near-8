@@ -7,6 +7,7 @@ public class CreditsVariable : MonoBehaviour
     public float credits, maxCredits;
     public CreditsBar creditsbar;
     //public GameObject damagescreen;
+    public GameObject indicator;
 
     public void DrainCredits()
     {
@@ -14,6 +15,7 @@ public class CreditsVariable : MonoBehaviour
         //maxCredits = 1000;
 
         credits -= Mathf.Min(1, credits);
+        indicator.SetActive(true);
         creditsbar.UpdateCreditBar();
         //damagescreen.SetActive(true);
     }

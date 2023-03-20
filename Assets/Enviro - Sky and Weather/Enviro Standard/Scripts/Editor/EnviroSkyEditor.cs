@@ -10,7 +10,7 @@ using System.IO;
 public class EnviroSkyEditor : Editor
 {
 #if ENVIRO_HD
-    private string latestVersion = "2.3.3";
+    private string latestVersion = "2.4.2";
     // GUI Styles 
     private GUIStyle boxStyle;
     private GUIStyle boxStyleModified;
@@ -34,7 +34,7 @@ public class EnviroSkyEditor : Editor
     SerializedProperty UpdateWeather, StartWeather, EnableVolumeLighting, EnableSunShafts, EnableMoonShafts, AmbientVolume, WeatherVolume;
     SerializedProperty lightIntensityLuxMult, exposure, angleOffset, lightColorGradient, lightIntensityCurveSun, lightIntensityCurveMoon, shadowStrength, VolumeLightingResolution, globalReflectionsUpdateOnPosition, globalReflectionsUpdateOnGameTime;
     SerializedProperty stopRotationAtHigh, rotationStopHigh, directionalLightMode, lightIntensityTransitionSpeed, ambientMode, ambientIntensityCurve, ambientSkyGradient, ambientEquatorGradient, ambientGroundGradient;
-    SerializedProperty globalReflectionLayers, globalReflectionResolution, reflectionCloudsQuality, useFogInReflection, globalReflectionsScale, reflectionBool, reflectionIntensity, reflectionUpdate;
+    SerializedProperty updateDefaultEnvironmentReflections, globalReflectionLayers, globalReflectionResolution, reflectionCloudsQuality, useFogInReflection, globalReflectionsScale, reflectionBool, reflectionIntensity, reflectionUpdate;
     SerializedProperty sunDiskSizeSimple, simpleGroundColor, simpleSunColor, simpleSkyColor, simpleHorizonColor, simpleHorizonBackColor, renderMoon, moonGlowSize, blackGroundMode, galaxyCubeMap, galaxyIntensity, starsTwinklingRate, skyboxMode, customSkyboxMaterial, customSkyboxColor, rayleigh, g, mie, scatteringCurve, scatteringColor, sunMoonPos, sunIntensity, sunDiskScale, sunDiskIntensity, sunDiskColor, moonPhaseMode, moonTexture, moonGlowTexture, moonSize, moonGlow, currentMoonPhase, skyLuminance, skyColorPower, skyExposure, fogExposure, starsCubemap, starsIntensity, moonColor, moonGlowColor;
     SerializedProperty cloudsSkyFogHeightBlending,dualLayerParticleClouds, setEnviroSkybox, skyboxExposure, controlSceneExposure, lightingVarianceTiling, useLessSteps, useHaltonRaymarchOffset, attenuationClamp, volumeCloudsAmbientColor, cloudsHeightMod, shadowCookieSize, shadowIntensity, customWeatherMap, silverLiningIntensity, silverLiningSpread, weatherAnimSpeedScale, globalCloudCoverage, cirrusCloudsAltitude, cloudsWorldScale, hgPhase, cloudsExposure, cirrusCloudsColor, volumeCloudsColor, volumeCloudsMoonColor, cirrusCloudsTexture, weatherMapTiling, LightIntensity, depthBlending, bilateralUpsampling;
     SerializedProperty useTag, wetnessAccumulationSpeed, wetnessDryingSpeed, snowAccumulationSpeed, snowMeltingSpeed, cloudTransitionSpeed, fogTransitionSpeed, effectTransitionSpeed, audioTransitionSpeed, useWindZoneDirection, windTimeScale, windIntensity, windDirectionX, windDirectionY;
@@ -42,7 +42,7 @@ public class EnviroSkyEditor : Editor
     SerializedProperty resolution, screenBlendMode, useDepthTexture, lightShaftsColorSun, lightShaftsColorMoon, treshholdColorSun, treshholdColorMoon, blurRadius, shaftsIntensity, maxRadius;
     SerializedProperty SpringStart, SpringEnd, SummerStart, SummerEnd, AutumnStart, AutumnEnd, WinterStart, WinterEnd;
     SerializedProperty effectQuality, updateInterval, lightningEffect, lightningRange, lightningHeight;
-    SerializedProperty singlePassVR, setCameraClearFlags, reflectionUpdatePos;
+    SerializedProperty setCameraClearFlags, reflectionUpdatePos;
     SerializedProperty useFog, particleClouds, useVolumeClouds, useDistanceBlur, useFlatClouds, useParticleClouds, particleCloudsHeight1, particleCloudsColor1, particleCloudsHeight2, particleCloudsColor2, ambientLightIntensity;
     SerializedProperty volumeLighting, SampleCount, ScatteringCoef, ExtinctionCoef, Anistropy, MaxRayLength, VolumeResolution, globalVolumeIntensity;
     SerializedProperty showVolumeCloudsEditor, showDistanceBlurInEditor, showVolumeLightingEditor, showFogEditor, showFlatCloudsEditor, volumeNoiseIntensity, volumeNoiseScale, volumeNoiseIntensityOffset, windUpwardsIntensity, cirrusWindIntensity;
@@ -51,7 +51,7 @@ public class EnviroSkyEditor : Editor
     SerializedProperty useAurora, auroraIntensity, auroraColor, auroraBrightness, auroraContrast, auroraHeight, auroraScale, auroraSteps, auroraSpeed;
     SerializedProperty flatCloudsBaseTexture, flatCloudsDetailTexture, flatCloudsDirectLightColor, flatCloudsAmbientLightColor, flatCloudsAltitude, flatCloudsBaseTextureTiling, flatCloudsDetailTextureTiling, cloudsDetailWindIntensity;
     //HDRP
-    SerializedProperty indirectLightingUpdateMode,fogColorTint,exposurePhysical, skyExposurePhysical, lightingUpdateEachFrames, useEnviroFog, useHDRPFog, usePhysicalBasedLighting, sunIntensityLux, moonIntensityLux, lightColorTemperature, lightColorTint;
+    SerializedProperty ambientColorMod, indirectLightingUpdateMode,fogColorTint,exposurePhysical, skyExposurePhysical, lightingUpdateEachFrames, useEnviroFog, useHDRPFog, usePhysicalBasedLighting, sunIntensityLux, moonIntensityLux, lightColorTemperature, lightColorTint;
     ReorderableList thunderSFX;
 
     void OnEnable()
@@ -78,7 +78,6 @@ public class EnviroSkyEditor : Editor
         tonemapping = serializedObj.FindProperty("tonemapping");
         startMode = serializedObj.FindProperty("startMode");
         SatTag = serializedObj.FindProperty("satelliteRenderingLayer");
-        singlePassVR = serializedObj.FindProperty("singlePassVR");
         singlePassInstancedVR = serializedObj.FindProperty("singlePassInstancedVR");
         setCameraClearFlags = serializedObj.FindProperty("setCameraClearFlags");
         floatingPointOriginAnchor = serializedObj.FindProperty("floatingPointOriginAnchor");
@@ -127,6 +126,7 @@ public class EnviroSkyEditor : Editor
         reflectionIntensity = serializedObj.FindProperty("reflectionSettings.globalReflectionsIntensity");
         reflectionUpdate = serializedObj.FindProperty("reflectionSettings.globalReflectionsTimeTreshold");
         reflectionUpdatePos = serializedObj.FindProperty("reflectionSettings.globalReflectionsPositionTreshold");
+        updateDefaultEnvironmentReflections = serializedObj.FindProperty("reflectionSettings.updateDefaultEnvironmentReflections"); 
         globalReflectionsScale = serializedObj.FindProperty("reflectionSettings.globalReflectionsScale");
         globalReflectionsUpdateOnPosition = serializedObj.FindProperty("reflectionSettings.globalReflectionsUpdateOnPosition");
         globalReflectionsUpdateOnGameTime = serializedObj.FindProperty("reflectionSettings.globalReflectionsUpdateOnGameTime");
@@ -138,6 +138,7 @@ public class EnviroSkyEditor : Editor
         globalReflectionLayers = serializedObj.FindProperty("reflectionSettings.globalReflectionLayers");
         lightIntensityTransitionSpeed = serializedObj.FindProperty("lightSettings.lightIntensityTransitionSpeed");
         directionalLightMode = serializedObj.FindProperty("lightSettings.directionalLightMode");
+     
         //HDRP
         lightingUpdateEachFrames = serializedObj.FindProperty("lightingUpdateEachFrames");
         exposure = serializedObj.FindProperty("lightSettings.exposure");
@@ -155,6 +156,7 @@ public class EnviroSkyEditor : Editor
         exposurePhysical = serializedObj.FindProperty("lightSettings.exposurePhysical");
         skyExposurePhysical = serializedObj.FindProperty("lightSettings.skyExposurePhysical");
         indirectLightingUpdateMode = serializedObj.FindProperty("lightSettings.indirectLightingUpdateMode");
+        ambientColorMod = serializedObj.FindProperty("lightSettings.ambientColorMod");
 
         //Volume Lighting
         VolumeLightingResolution = serializedObj.FindProperty("volumeLightSettings.Resolution");
@@ -535,6 +537,7 @@ public class EnviroSkyEditor : Editor
                             EditorGUILayout.LabelField("Light Color", headerStyle);
                             EditorGUILayout.PropertyField(lightColorTemperature, true, null);
                             EditorGUILayout.PropertyField(lightColorTint, true, null);
+                            EditorGUILayout.PropertyField(ambientColorMod, true, null);
                             GUILayout.Space(10);
                             EditorGUILayout.LabelField("Exposure Settings", headerStyle);
 
@@ -777,12 +780,13 @@ public class EnviroSkyEditor : Editor
                         EditorGUILayout.PropertyField(globalCloudCoverage, true, null);
                         EditorGUILayout.EndVertical();
 
-
+#if !ENVIRO_HDRP
                         GUILayout.BeginVertical("Clouds Shadows", boxStyleModified);
                         GUILayout.Space(20);
                         EditorGUILayout.PropertyField(shadowIntensity, true, null);
                         EditorGUILayout.PropertyField(shadowCookieSize, true, null);
                         EditorGUILayout.EndVertical();
+#endif
                         EditorGUILayout.EndVertical();
 
                         GUILayout.BeginVertical("2D Clouds", boxStyleModified);
@@ -864,10 +868,10 @@ public class EnviroSkyEditor : Editor
                         EditorGUI.BeginChangeCheck();
                         EditorGUILayout.PropertyField(reflectionBool, true, null);
                         if (myTarget.reflectionSettings.globalReflections)
-                        {
+                        {                     
 #if !ENVIRO_HDRP
-                            GUILayout.Space(5);
-
+                            EditorGUILayout.PropertyField(updateDefaultEnvironmentReflections, true, null);    
+                            GUILayout.Space(5);     
                             EditorGUILayout.PropertyField(globalReflectionClouds, true, null);
                             if (myTarget.reflectionSettings.globalReflectionCustomRendering)
                             {
@@ -887,7 +891,9 @@ public class EnviroSkyEditor : Editor
                             GUILayout.Space(5);
                             EditorGUILayout.PropertyField(reflectionIntensity, true, null);
                             EditorGUILayout.PropertyField(globalReflectionsScale, true, null);
+#if !ENVIRO_HDRP
                             EditorGUILayout.PropertyField(globalReflectionResolution, true, null);
+#endif
                             EditorGUILayout.PropertyField(globalReflectionLayers, true, null);
 
                         }
@@ -1134,6 +1140,29 @@ public class EnviroSkyEditor : Editor
                 EditorGUILayout.PropertyField(Player, true, null);
                 EditorGUILayout.PropertyField(Camera, true, null);
                 EditorGUILayout.PropertyField(startMode, true, null);
+                
+#if ENVIRO_HDRP || ENVIRO_LWRP
+                GUILayout.BeginVertical("Additional Cameras", boxStyleModified);
+                GUILayout.Space(20);
+                if (GUILayout.Button ("Add")) 
+                {
+                        myTarget.additionalCameras.Add (null);
+                }
+                 GUILayout.Space(5);
+                for (int i = 0; i < myTarget.additionalCameras.Count; i++)
+                {     
+                    GUILayout.BeginVertical("", boxStyleModified);
+                    myTarget.additionalCameras[i] = (Camera)EditorGUILayout.ObjectField ("Camera", myTarget.additionalCameras[i], typeof(Camera), true);
+                    if (GUILayout.Button ("Remove")) 
+                    {
+                        myTarget.additionalCameras.RemoveAt (i);
+                    }
+                       
+                    GUILayout.EndVertical();
+                }
+                GUILayout.EndVertical();
+#endif
+
                 GUILayout.EndVertical();
                 GUILayout.BeginVertical("", boxStyleModified);
                 AssignOnRuntime.boolValue = EditorGUILayout.BeginToggleGroup("Assign On Runtime", AssignOnRuntime.boolValue);
@@ -1185,7 +1214,6 @@ public class EnviroSkyEditor : Editor
 
                 GUILayout.BeginVertical("", boxStyleModified);
                 EditorGUILayout.LabelField("Virtual Reality", headerStyle, null);
-                EditorGUILayout.PropertyField(singlePassVR, true, null);
                 EditorGUILayout.PropertyField(singlePassInstancedVR, true, null);
                 GUILayout.EndVertical();
             }

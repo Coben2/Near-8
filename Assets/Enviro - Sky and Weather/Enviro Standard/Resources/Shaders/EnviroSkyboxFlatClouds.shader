@@ -190,22 +190,26 @@
 		float3 moonArea = clamp(moonSampler * 10, 0, 1) * i.sky.z;
 		moonSampler = lerp(float4(0,0,0,0),moonSampler,alpha);
 		moonSampler = (moonSampler * _MoonColor) * 2;
-
+ 
 		//float3 moonBright = saturate((float3(1,1,1)) * pow(dot(viewDir, -_MoonDir), (21.0 - _MoonSize) * 10) * i.night);
 		float4 moonGlow = tex2D(_GlowTex, i.moonPos.zw) * i.sky.z;
 		float3 skyFinalize = saturate((pow(1.0 - fex, 2.0) * 0.234) * (1 - i.sky.x)) * _SkyLuminance;
-		skyFinalize = saturate(lerp(float3(0.1,0.1,0.1), skyFinalize, saturate(dot(viewDir.y + 0.3, float3(0,1,0)))) * (1 - fex));
+		skyFinalize = saturate(lerp(float3(0.01,0.01,0.01), skyFinalize, saturate(dot(viewDir.y + 0.3, float3(0,1,0)))) * (1 - fex));
 		float fadeStar = i.night * _StarsIntensity * 75;
 		float3 starsMap = texCUBE(_Stars, i.starPos.xyz);
 		if (_StarsTwinkling > 0)
-		{
+		{ 
 			float3 starsTwinklingMap = texCUBE(_StarsTwinklingNoise, i.starsTwinklingPos.xyz);
 			starsMap = starsMap * starsTwinklingMap;
 		}
 		float starsBehindMoon = 1 - clamp((moonArea * 5), 0, 1);
-		float3 stars = pow(clamp((starsMap * fadeStar) * starsBehindMoon, 0, 4), 2);
+		float3 stars = pow(clamp((starsMap * fadeStar) * starsBehindMoon,0,4),2);
+		//float3 stars = pow(clamp((starsMap * 10) * starsBehindMoon,0,4),2);
+		
 		float3 galaxyMap = texCUBE(_Galaxy, i.starPos.xyz);
 		float3 galaxy = galaxyMap * starsBehindMoon * (i.night * _GalaxyIntensity);
+		//float3 galaxy = galaxyMap * starsBehindMoon * (_GalaxyIntensity);
+		
 		scattering *= saturate((lerp(float3(_scatteringPower, _scatteringPower, _scatteringPower), pow(2000.0f * BrmTheta * fex, 0.75f), i.sky.y) * 0.05));
 		scattering *= (_SkyLuminance * _scatteringColor.rgb) * pow((1 - fex), 2) * i.sky.x;
 
@@ -356,7 +360,7 @@
 		half4 finalColor = half4(0,0,0,0);
 
 		[loop]
-		for (int i = 0; i < _AuroraSteps; i++)
+		for (int iCount = 0; iCount < _AuroraSteps; iCount++)
 		{
 			if (finalColor.a > 1)
 				break;

@@ -121,7 +121,8 @@ public class EnviroVolumeLight : MonoBehaviour
 #if ENVIRO_HDRP || ENVIRO_LWRP
             this.enabled = false;
             return;
-#endif
+#else
+
 
         _commandBuffer = new CommandBuffer();
         _commandBuffer.name = "Light Command Buffer";
@@ -154,6 +155,7 @@ public class EnviroVolumeLight : MonoBehaviour
         }
 
         EnviroSkyRendering.PreRenderEvent += VolumetricLightRenderer_PreRenderEvent;
+#endif
     }
 
     /// <summary>
@@ -281,7 +283,7 @@ public class EnviroVolumeLight : MonoBehaviour
         bool forceShadowsOff = false;
         if ((_light.transform.position - EnviroSky.instance.PlayerCamera.transform.position).magnitude >= QualitySettings.shadowDistance)
             forceShadowsOff = true;
-
+ 
         if (_light.shadows != LightShadows.None && forceShadowsOff == false)
         {
 #if UNITY_2018_1_OR_NEWER
@@ -291,16 +293,20 @@ public class EnviroVolumeLight : MonoBehaviour
             if (UnityEngine.VR.VRSettings.enabled)
             {
 #endif
-                if (EnviroSky.instance.singlePassVR)
+                if (EnviroSky.instance.singlePassInstancedVR)
                 {
                     _material.EnableKeyword("SHADOWS_CUBE");
                     _commandBuffer.SetGlobalTexture("_ShadowMapTexture", BuiltinRenderTextureType.CurrentActive);
-                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer());
+
+                    _material.SetFloat("_Eye",0f);
+                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,0);
+                    _commandBuffer.DrawMesh(mesh, world, _material, 0, pass);
+                    _material.SetFloat("_Eye",1f);
+                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,1);
                     _commandBuffer.DrawMesh(mesh, world, _material, 0, pass);
 
                     if (CustomRenderEvent != null)
                         CustomRenderEvent(renderer, this, _commandBuffer, viewProj);
-
                 }
                 else
                 {
@@ -314,7 +320,7 @@ public class EnviroVolumeLight : MonoBehaviour
 
 					if (CustomRenderEvent != null)
 						CustomRenderEvent (renderer, this, _commandBuffer, viewProj);*/
-
+                    _material.SetFloat("_Eye",0f);
                     _material.DisableKeyword("SHADOWS_CUBE");
                     renderer.GlobalCommandBuffer.DrawMesh(mesh, world, _material, 0, pass);
 
@@ -339,9 +345,21 @@ public class EnviroVolumeLight : MonoBehaviour
 
             if (EnviroSky.instance.PlayerCamera.actualRenderingPath == RenderingPath.Forward)
             {
-                //renderer.GlobalCommandBufferForward.Clear ();
-                renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer());
-                renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+                if (EnviroSky.instance.singlePassInstancedVR)
+                {
+                    _material.SetFloat("_Eye",0f);
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,0);
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+
+                    _material.SetFloat("_Eye",1f);
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,1);
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+                }
+                else
+                {
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer());
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+                }
 
                 if (CustomRenderEvent != null)
                     CustomRenderEvent(renderer, this, renderer.GlobalCommandBufferForward, viewProj);
@@ -434,7 +452,7 @@ public class EnviroVolumeLight : MonoBehaviour
             if (UnityEngine.VR.VRSettings.enabled)
             {
 #endif
-                if (EnviroSky.instance.singlePassVR)
+                if (EnviroSky.instance.singlePassInstancedVR)
                 {
                     clip = Matrix4x4.TRS(new Vector3(0.5f, 0.5f, 0.5f), Quaternion.identity, new Vector3(0.5f, 0.5f, 0.5f));
 
@@ -455,9 +473,15 @@ public class EnviroVolumeLight : MonoBehaviour
 
                     _material.EnableKeyword("SHADOWS_DEPTH");
                     _commandBuffer.SetGlobalTexture("_ShadowMapTexture", BuiltinRenderTextureType.CurrentActive);
-                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer());
 
+
+                    _material.SetFloat("_Eye",0f);
+                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,0);
                     _commandBuffer.DrawMesh(mesh, world, _material, 0, pass);
+                    _material.SetFloat("_Eye",1f);
+                    _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,1);
+                    _commandBuffer.DrawMesh(mesh, world, _material, 0, pass);
+
 
                     if (CustomRenderEvent != null)
                         CustomRenderEvent(renderer, this, _commandBuffer, viewProj);
@@ -495,8 +519,8 @@ public class EnviroVolumeLight : MonoBehaviour
                 //  _commandBuffer.SetShadowSamplingMode(BuiltinRenderTextureType.CurrentActive, ShadowSamplingMode.CompareDepths);
 
                 _commandBuffer.SetGlobalTexture("_ShadowMapTexture", BuiltinRenderTextureType.CurrentActive);
-                _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer());
 
+                _commandBuffer.SetRenderTarget(renderer.GetVolumeLightBuffer());
                 _commandBuffer.DrawMesh(mesh, world, _material, 0, pass);
 
                 if (CustomRenderEvent != null)
@@ -507,11 +531,25 @@ public class EnviroVolumeLight : MonoBehaviour
         else
         {
             _material.DisableKeyword("SHADOWS_DEPTH");
+
             if (EnviroSky.instance.PlayerCamera.actualRenderingPath == RenderingPath.Forward)
             {
-                //renderer.GlobalCommandBufferForward.Clear ();
-                renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer());
-                renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+
+                if (EnviroSky.instance.singlePassInstancedVR)
+                {
+                    _material.SetFloat("_Eye",0f);
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,0);
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+
+                    _material.SetFloat("_Eye",1f);
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer(),0,CubemapFace.Unknown,1);
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+                }
+                else
+                {
+                    renderer.GlobalCommandBufferForward.SetRenderTarget(renderer.GetVolumeLightBuffer());
+                    renderer.GlobalCommandBufferForward.DrawMesh(mesh, world, _material, 0, pass);
+                }
 
                 if (CustomRenderEvent != null)
                     CustomRenderEvent(renderer, this, renderer.GlobalCommandBufferForward, viewProj);

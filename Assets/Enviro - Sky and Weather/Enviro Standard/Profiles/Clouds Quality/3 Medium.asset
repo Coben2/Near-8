@@ -19,10 +19,10 @@ MonoBehaviour:
     stepsInDepthModificator: 0.7
     transmissionToExit: 0.15
     cloudsRenderResolution: 1
-    reprojectionPixelSize: 1
+    reprojectionPixelSize: 2
     lodDistance: 0.25
     baseNoiseUV: 15
-    detailNoiseUV: 50
+    detailNoiseUV: 45
     useCurlNoise: 0
     baseQuality: 0
     detailQuality: 0

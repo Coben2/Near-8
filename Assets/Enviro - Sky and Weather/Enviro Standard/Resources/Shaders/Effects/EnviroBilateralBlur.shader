@@ -1,7 +1,3 @@
-// Upgrade NOTE: replaced 'defined UNITY2017_2_SP' with 'defined (UNITY2017_2_SP)'
-
-// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
 //  Copyright(c) 2016, Michal Skalsky
 //  All rights reserved.
 //
@@ -36,6 +32,8 @@ Shader "Hidden/EnviroBilateralBlur"
 	Properties
 	{
         _MainTex("Texture", any) = "" {}
+		
+
 	}
 		SubShader
 	{
@@ -43,8 +41,6 @@ Shader "Hidden/EnviroBilateralBlur"
 		Cull Off ZWrite Off ZTest Always
 
 		CGINCLUDE
-
-		#pragma shader_feature UNITY2017_2_SP
         //--------------------------------------------------------------------------------------------
         // Downsample, bilateral blur and upsample config
         //--------------------------------------------------------------------------------------------        
@@ -62,13 +58,24 @@ Shader "Hidden/EnviroBilateralBlur"
 
 		#include "UnityCG.cginc"	
 
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)		
+		UNITY_DECLARE_TEX2DARRAY(_CameraDepthTexture);        
+        UNITY_DECLARE_TEX2DARRAY(_HalfResDepthBuffer);        
+        UNITY_DECLARE_TEX2DARRAY(_QuarterResDepthBuffer);        
+        UNITY_DECLARE_TEX2DARRAY(_HalfResColor);
+        UNITY_DECLARE_TEX2DARRAY(_QuarterResColor);
+        UNITY_DECLARE_TEX2DARRAY(_MainTex);
+#else
         UNITY_DECLARE_TEX2D(_CameraDepthTexture);        
         UNITY_DECLARE_TEX2D(_HalfResDepthBuffer);        
         UNITY_DECLARE_TEX2D(_QuarterResDepthBuffer);        
         UNITY_DECLARE_TEX2D(_HalfResColor);
         UNITY_DECLARE_TEX2D(_QuarterResColor);
         UNITY_DECLARE_TEX2D(_MainTex);
+#endif
 
+
+		float4 _MainTex_TexelSize;
         float4 _CameraDepthTexture_TexelSize;
         float4 _HalfResDepthBuffer_TexelSize;
         float4 _QuarterResDepthBuffer_TexelSize;
@@ -77,12 +84,14 @@ Shader "Hidden/EnviroBilateralBlur"
 		{
 			float4 vertex : POSITION;
 			float2 uv : TEXCOORD0;
+			UNITY_VERTEX_INPUT_INSTANCE_ID
 		};
 
 		struct v2f
 		{
 			float2 uv : TEXCOORD0;
 			float4 vertex : SV_POSITION;
+			UNITY_VERTEX_OUTPUT_STEREO
 		};
 
 		struct v2fDownsample
@@ -96,6 +105,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			float2 uv11 : TEXCOORD3;
 #endif
 			float4 vertex : SV_POSITION;
+			UNITY_VERTEX_OUTPUT_STEREO
 		};
 
 		struct v2fUpsample
@@ -106,15 +116,21 @@ Shader "Hidden/EnviroBilateralBlur"
 			float2 uv10 : TEXCOORD3;
 			float2 uv11 : TEXCOORD4;
 			float4 vertex : SV_POSITION;
+			UNITY_VERTEX_OUTPUT_STEREO
 		};
+
 
 		v2f vert(appdata v)
 		{
 			v2f o;
+			UNITY_SETUP_INSTANCE_ID(v);
+        	UNITY_INITIALIZE_OUTPUT(v2f, o);
+            UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 			o.vertex = UnityObjectToClipPos(v.vertex);
 			o.uv = v.uv;
 			return o;
 		}
+
 
 		//-----------------------------------------------------------------------------------------
 		// vertDownsampleDepth
@@ -122,6 +138,9 @@ Shader "Hidden/EnviroBilateralBlur"
 		v2fDownsample vertDownsampleDepth(appdata v, float2 texelSize)
 		{
 			v2fDownsample o;
+			UNITY_SETUP_INSTANCE_ID(v);
+            UNITY_INITIALIZE_OUTPUT(v2fDownsample, o);
+            UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 			o.vertex = UnityObjectToClipPos(v.vertex);
 #if SHADER_TARGET > 40
 			o.uv = v.uv;
@@ -140,6 +159,9 @@ Shader "Hidden/EnviroBilateralBlur"
         v2fUpsample vertUpsample(appdata v, float2 texelSize)
         {
             v2fUpsample o;
+			UNITY_SETUP_INSTANCE_ID(v);
+            UNITY_INITIALIZE_OUTPUT(v2fUpsample, o);
+            UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
             o.vertex = UnityObjectToClipPos(v.vertex);
             o.uv = v.uv;
 
@@ -147,22 +169,34 @@ Shader "Hidden/EnviroBilateralBlur"
             o.uv10 = o.uv00 + float2(texelSize.x, 0);
             o.uv01 = o.uv00 + float2(0, texelSize.y);
             o.uv11 = o.uv00 + texelSize.xy;
-            return o;
+            return o; 
         }
+#if defined(UNITY_STEREO_INSTANCING_ENABLED) || defined(UNITY_STEREO_MULTIVIEW_ENABLED)
 
-		//-----------------------------------------------------------------------------------------
+		float4 SampleTexture(Texture2DArray tex, SamplerState samplerState, float2 uv)
+		{
+			//return UNITY_SAMPLE_TEX2DARRAY(tex, float3((uv).xy, (float)unity_StereoEyeIndex));
+
+ 
+			//return UNITY_SAMPLE_TEX2DARRAY_SAMPLER(tex,samplerState,uv);
+			return tex.Sample(samplerState, float3((uv).xy, (float)unity_StereoEyeIndex)); 
+		}
+
+				//-----------------------------------------------------------------------------------------
 		// BilateralUpsample
 		//-----------------------------------------------------------------------------------------
-		float4 BilateralUpsample(v2fUpsample input, Texture2D hiDepth, Texture2D loDepth, Texture2D loColor, SamplerState linearSampler, SamplerState pointSampler)
+		float4 BilateralUpsample(v2fUpsample input, Texture2DArray hiDepth, Texture2DArray loDepth, Texture2DArray loColor, SamplerState linearSampler, SamplerState pointSampler)
 		{
             const float threshold = UPSAMPLE_DEPTH_THRESHOLD;
-            float4 highResDepth = LinearEyeDepth(hiDepth.Sample(pointSampler, input.uv)).xxxx;
+           // float4 highResDepth = LinearEyeDepth(hiDepth.Sample(pointSampler, input.uv)).xxxx;
+			float4 highResDepth = LinearEyeDepth(SampleTexture(hiDepth, pointSampler, input.uv)).xxxx;
+
 			float4 lowResDepth;
 
-            lowResDepth[0] = LinearEyeDepth(loDepth.Sample(pointSampler, input.uv00));
-            lowResDepth[1] = LinearEyeDepth(loDepth.Sample(pointSampler, input.uv10));
-            lowResDepth[2] = LinearEyeDepth(loDepth.Sample(pointSampler, input.uv01));
-            lowResDepth[3] = LinearEyeDepth(loDepth.Sample(pointSampler, input.uv11));
+            lowResDepth[0] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv00));
+            lowResDepth[1] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv10));
+            lowResDepth[2] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv01));
+            lowResDepth[3] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv11));
 
 			float4 depthDiff = abs(lowResDepth - highResDepth);
 
@@ -171,11 +205,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			[branch]
 			if (accumDiff < threshold) // small error, not an edge -> use bilinear filter
 			{
-#if defined (UNITY2017_2_SP)
-				return loColor.Sample(linearSampler, UnityStereoTransformScreenSpaceTex(input.uv));
-#else
-				return loColor.Sample(linearSampler, input.uv);
-#endif
+				return SampleTexture(loColor,linearSampler,input.uv);
 			}
 
 			// find nearest sample
@@ -199,12 +229,176 @@ Shader "Hidden/EnviroBilateralBlur"
 				nearestUv = input.uv11;
 				minDepthDiff = depthDiff[3];
 			}
+			return SampleTexture(loColor,pointSampler,nearestUv);
+		}
 
-#if defined (UNITY2017_2_SP)
-			return loColor.Sample(pointSampler, UnityStereoTransformScreenSpaceTex(nearestUv));
+		//-----------------------------------------------------------------------------------------
+		// DownsampleDepth
+		//-----------------------------------------------------------------------------------------
+		float DownsampleDepth(v2fDownsample input, Texture2DArray depthTexture, SamplerState depthSampler)
+		{
+#if SHADER_TARGET > 40
+            float4 depth = depthTexture.Gather(depthSampler, input.uv);
 #else
-			return loColor.Sample(pointSampler, nearestUv);
+			float4 depth;
+			depth.x = SampleTexture(depthTexture,depthSampler,input.uv00).x;
+			depth.y = SampleTexture(depthTexture,depthSampler,input.uv01).x;
+			depth.z = SampleTexture(depthTexture,depthSampler,input.uv10).x;
+			depth.w = SampleTexture(depthTexture,depthSampler,input.uv11).x;
+
 #endif
+
+#if DOWNSAMPLE_DEPTH_MODE == 0 // min  depth
+            return min(min(depth.x, depth.y), min(depth.z, depth.w));
+#elif DOWNSAMPLE_DEPTH_MODE == 1 // max  depth
+            return max(max(depth.x, depth.y), max(depth.z, depth.w));
+#elif DOWNSAMPLE_DEPTH_MODE == 2 // min/max depth in chessboard pattern
+
+			float minDepth = min(min(depth.x, depth.y), min(depth.z, depth.w));
+			float maxDepth = max(max(depth.x, depth.y), max(depth.z, depth.w));
+
+			// chessboard pattern
+			int2 position = input.vertex.xy % 2;
+			int index = position.x + position.y;
+			return index == 1 ? minDepth : maxDepth;
+#endif
+		}
+		
+		//-----------------------------------------------------------------------------------------
+		// GaussianWeight
+		//-----------------------------------------------------------------------------------------
+		float GaussianWeight(float offset, float deviation)
+		{
+			float weight = 1.0f / sqrt(2.0f * PI * deviation * deviation);
+			weight *= exp(-(offset * offset) / (2.0f * deviation * deviation));
+			return weight;
+		}
+
+		//-----------------------------------------------------------------------------------------
+		// BilateralBlur
+		//-----------------------------------------------------------------------------------------
+		float4 BilateralBlur(v2f input, int2 direction, Texture2DArray depth, SamplerState depthSampler, const int kernelRadius, float2 pixelSize)
+		{
+			//const float deviation = kernelRadius / 2.5;
+			const float deviation = kernelRadius / GAUSS_BLUR_DEVIATION; // make it really strong
+
+			float2 uv = input.uv;
+			float4 centerColor = SampleTexture(_MainTex,sampler_MainTex,uv);
+
+			float3 color = centerColor.xyz;
+			//return float4(color, 1);
+
+			float centerDepth = LinearEyeDepth(SampleTexture(depth,depthSampler,uv));
+
+			float weightSum = 0;
+
+			// gaussian weight is computed from constants only -> will be computed in compile time
+            float weight = GaussianWeight(0, deviation);
+			color *= weight;
+			weightSum += weight;
+						
+			[unroll] for (int i = -kernelRadius; i < 0; i += 1)
+			{
+                float2 offset = (direction * i);
+
+                float3 sampleColor = SampleTexture(_MainTex,sampler_MainTex,input.uv + offset * _MainTex_TexelSize.xy).rgb;  
+			    float sampleDepth = LinearEyeDepth(SampleTexture(depth,depthSampler, input.uv + offset * _MainTex_TexelSize.xy));
+
+				float depthDiff = abs(centerDepth - sampleDepth);
+                float dFactor = depthDiff * BLUR_DEPTH_FACTOR;
+				float w = exp(-(dFactor * dFactor));
+
+				// gaussian weight is computed from constants only -> will be computed in compile time
+				weight = GaussianWeight(i, deviation) * w;
+
+				color += weight * sampleColor;
+				weightSum += weight;
+			}
+
+			[unroll] for (int k = 1; k <= kernelRadius; k += 1) 
+			{
+				float2 offset = (direction * k);
+          
+				float3 sampleColor = SampleTexture(_MainTex,sampler_MainTex,input.uv + offset * _MainTex_TexelSize.xy).rgb; 
+				float sampleDepth = LinearEyeDepth(SampleTexture(depth,depthSampler, input.uv + offset * _MainTex_TexelSize.xy));
+
+				float depthDiff = abs(centerDepth - sampleDepth);
+                float dFactor = depthDiff * BLUR_DEPTH_FACTOR;
+				float w = exp(-(dFactor * dFactor));
+				
+				// gaussian weight is computed from constants only -> will be computed in compile time
+				weight = GaussianWeight(k, deviation) * w;
+
+				color += weight * sampleColor;
+				weightSum += weight;
+			}
+
+			color /= weightSum;
+			return float4(color, centerColor.w);
+		}
+
+
+#else
+
+
+		float4 SampleTexture(Texture2D tex, SamplerState samplerState, float2 uv)
+		{	
+			return tex.Sample(samplerState,uv);
+		}
+
+		float4 SampleTexture(Texture2D tex, SamplerState samplerState, float2 uv, float2 offset)
+		{	
+			return tex.Sample(samplerState,uv,offset);
+		}
+
+				//-----------------------------------------------------------------------------------------
+		// BilateralUpsample
+		//-----------------------------------------------------------------------------------------
+		float4 BilateralUpsample(v2fUpsample input, Texture2D hiDepth, Texture2D loDepth, Texture2D loColor, SamplerState linearSampler, SamplerState pointSampler)
+		{
+            const float threshold = UPSAMPLE_DEPTH_THRESHOLD;
+           // float4 highResDepth = LinearEyeDepth(hiDepth.Sample(pointSampler, input.uv)).xxxx;
+			float4 highResDepth = LinearEyeDepth(SampleTexture(hiDepth, pointSampler, input.uv)).xxxx;
+
+			float4 lowResDepth;
+
+            lowResDepth[0] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv00));
+            lowResDepth[1] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv10));
+            lowResDepth[2] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv01));
+            lowResDepth[3] = LinearEyeDepth(SampleTexture(loDepth, pointSampler, input.uv11));
+
+			float4 depthDiff = abs(lowResDepth - highResDepth);
+
+			float accumDiff = dot(depthDiff, float4(1, 1, 1, 1));
+
+			[branch]
+			if (accumDiff < threshold) // small error, not an edge -> use bilinear filter
+			{
+				return SampleTexture(loColor,linearSampler,input.uv);
+			}
+
+			// find nearest sample
+			float minDepthDiff = depthDiff[0];
+			float2 nearestUv = input.uv00;
+
+			if (depthDiff[1] < minDepthDiff)
+			{
+				nearestUv = input.uv10;
+				minDepthDiff = depthDiff[1];
+			}
+
+			if (depthDiff[2] < minDepthDiff)
+			{
+				nearestUv = input.uv01;
+				minDepthDiff = depthDiff[2];
+			}
+
+			if (depthDiff[3] < minDepthDiff)
+			{
+				nearestUv = input.uv11;
+				minDepthDiff = depthDiff[3];
+			}
+			return SampleTexture(loColor,pointSampler,nearestUv);
 		}
 
 		//-----------------------------------------------------------------------------------------
@@ -216,10 +410,10 @@ Shader "Hidden/EnviroBilateralBlur"
             float4 depth = depthTexture.Gather(depthSampler, input.uv);
 #else
 			float4 depth;
-			depth.x = depthTexture.Sample(depthSampler, input.uv00).x;
-			depth.y = depthTexture.Sample(depthSampler, input.uv01).x;
-			depth.z = depthTexture.Sample(depthSampler, input.uv10).x;
-			depth.w = depthTexture.Sample(depthSampler, input.uv11).x;
+			depth.x = SampleTexture(depthTexture,depthSampler,input.uv00).x;
+			depth.y = SampleTexture(depthTexture,depthSampler,input.uv01).x;
+			depth.z = SampleTexture(depthTexture,depthSampler,input.uv10).x;
+			depth.w = SampleTexture(depthTexture,depthSampler,input.uv11).x;
 
 #endif
 
@@ -258,10 +452,12 @@ Shader "Hidden/EnviroBilateralBlur"
 			const float deviation = kernelRadius / GAUSS_BLUR_DEVIATION; // make it really strong
 
 			float2 uv = input.uv;
-			float4 centerColor = _MainTex.Sample(sampler_MainTex, UnityStereoTransformScreenSpaceTex(uv));
+			float4 centerColor = SampleTexture(_MainTex,sampler_MainTex,uv);
+
 			float3 color = centerColor.xyz;
 			//return float4(color, 1);
-			float centerDepth = (LinearEyeDepth(depth.Sample(depthSampler, UnityStereoTransformScreenSpaceTex(uv))));
+
+			float centerDepth = LinearEyeDepth(SampleTexture(depth,depthSampler,uv));
 
 			float weightSum = 0;
 
@@ -273,8 +469,9 @@ Shader "Hidden/EnviroBilateralBlur"
 			[unroll] for (int i = -kernelRadius; i < 0; i += 1)
 			{
                 float2 offset = (direction * i);
-                float3 sampleColor = _MainTex.Sample(sampler_MainTex, UnityStereoTransformScreenSpaceTex(input.uv), offset);
-                float sampleDepth = (LinearEyeDepth(depth.Sample(depthSampler, UnityStereoTransformScreenSpaceTex(input.uv), offset)));
+
+                float3 sampleColor = SampleTexture(_MainTex,sampler_MainTex,input.uv,offset).rgb;   
+			    float sampleDepth = LinearEyeDepth(SampleTexture(depth,depthSampler, input.uv, offset).x);
 
 				float depthDiff = abs(centerDepth - sampleDepth);
                 float dFactor = depthDiff * BLUR_DEPTH_FACTOR;
@@ -287,11 +484,12 @@ Shader "Hidden/EnviroBilateralBlur"
 				weightSum += weight;
 			}
 
-			[unroll] for (int k = 1; k <= kernelRadius; k += 1)
+			[unroll] for (int k = 1; k <= kernelRadius; k += 1) 
 			{
 				float2 offset = (direction * k);
-                float3 sampleColor = _MainTex.Sample(sampler_MainTex, UnityStereoTransformScreenSpaceTex(input.uv), offset);
-                float sampleDepth = (LinearEyeDepth(depth.Sample(depthSampler, UnityStereoTransformScreenSpaceTex(input.uv), offset)));
+          
+				float3 sampleColor = SampleTexture(_MainTex,sampler_MainTex,input.uv,offset).rgb; 
+				float sampleDepth = LinearEyeDepth(SampleTexture(depth,depthSampler,input.uv,offset).x);
 
 				float depthDiff = abs(centerDepth - sampleDepth);
                 float dFactor = depthDiff * BLUR_DEPTH_FACTOR;
@@ -308,6 +506,8 @@ Shader "Hidden/EnviroBilateralBlur"
 			return float4(color, centerColor.w);
 		}
 
+#endif
+
 		ENDCG
 
 		// pass 0 - horizontal blur (hires)
@@ -323,7 +523,9 @@ Shader "Hidden/EnviroBilateralBlur"
 			
 			fixed4 horizontalFrag(v2f input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 return BilateralBlur(input, int2(1, 0), _CameraDepthTexture, sampler_CameraDepthTexture, FULL_RES_BLUR_KERNEL_SIZE, _CameraDepthTexture_TexelSize.xy);
+				//return SampleTexture(_MainTex,sampler_MainTex,input.uv); 
 			}
 
 			ENDCG
@@ -336,11 +538,13 @@ Shader "Hidden/EnviroBilateralBlur"
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment verticalFrag
-		#pragma target 3.5
-#pragma exclude_renderers gles
+			#pragma target 3.5
+			#pragma exclude_renderers gles
 			
 			fixed4 verticalFrag(v2f input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+
                 return BilateralBlur(input, int2(0, 1), _CameraDepthTexture, sampler_CameraDepthTexture, FULL_RES_BLUR_KERNEL_SIZE, _CameraDepthTexture_TexelSize);
 			}
 
@@ -355,10 +559,11 @@ Shader "Hidden/EnviroBilateralBlur"
             #pragma vertex vert
             #pragma fragment horizontalFrag
             #pragma target 3.5
-#pragma exclude_renderers gles
+			#pragma exclude_renderers gles
 
 		fixed4 horizontalFrag(v2f input) : SV_Target
 		{
+			UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
             return BilateralBlur(input, int2(1, 0), _HalfResDepthBuffer, sampler_HalfResDepthBuffer, HALF_RES_BLUR_KERNEL_SIZE, _HalfResDepthBuffer_TexelSize);
 		}
 
@@ -368,7 +573,7 @@ Shader "Hidden/EnviroBilateralBlur"
 		// pass 3 - vertical blur (lores)
 		Pass
 		{
-
+ 
 			CGPROGRAM
             #pragma vertex vert
             #pragma fragment verticalFrag
@@ -377,6 +582,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 		fixed4 verticalFrag(v2f input) : SV_Target
 		{
+			UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
             return BilateralBlur(input, int2(0, 1), _HalfResDepthBuffer, sampler_HalfResDepthBuffer, HALF_RES_BLUR_KERNEL_SIZE, _HalfResDepthBuffer_TexelSize);
 		}
 
@@ -401,6 +607,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 			float4 frag(v2fDownsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 				float depth = DownsampleDepth(input, _CameraDepthTexture, sampler_CameraDepthTexture);
                 return float4(depth,depth,depth,depth);
 			}
@@ -418,7 +625,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			#pragma vertex vertUpsampleToFull
 			#pragma fragment frag		
             #pragma target 3.5
-#pragma exclude_renderers gles
+			#pragma exclude_renderers gles
 
 			v2fUpsample vertUpsampleToFull(appdata v)
 			{
@@ -426,6 +633,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			}
 			float4 frag(v2fUpsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 				return BilateralUpsample(input, _CameraDepthTexture, _HalfResDepthBuffer, _HalfResColor, sampler_HalfResColor, sampler_HalfResDepthBuffer);
 			}
 
@@ -450,6 +658,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 			float4 frag(v2fDownsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 				float depth = DownsampleDepth(input, _HalfResDepthBuffer, sampler_HalfResDepthBuffer);
                 return float4(depth,depth,depth,depth);
 			}
@@ -473,6 +682,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			}
 			float4 frag(v2fUpsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 return BilateralUpsample(input, _CameraDepthTexture, _QuarterResDepthBuffer, _QuarterResColor, sampler_QuarterResColor, sampler_QuarterResDepthBuffer);
 			}
 
@@ -490,6 +700,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 			fixed4 horizontalFrag(v2f input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 return BilateralBlur(input, int2(1, 0), _QuarterResDepthBuffer, sampler_QuarterResDepthBuffer, QUARTER_RES_BLUR_KERNEL_SIZE, _QuarterResDepthBuffer_TexelSize.xy);
 			}
 
@@ -507,6 +718,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 			fixed4 verticalFrag(v2f input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
                 return BilateralBlur(input, int2(0, 1), _QuarterResDepthBuffer, sampler_QuarterResDepthBuffer, QUARTER_RES_BLUR_KERNEL_SIZE, _QuarterResDepthBuffer_TexelSize.xy);
 			}
 
@@ -530,6 +742,7 @@ Shader "Hidden/EnviroBilateralBlur"
 
 			float4 frag(v2fDownsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 				float depth = DownsampleDepth(input, _CameraDepthTexture, sampler_CameraDepthTexture);
 
 				return float4(depth,depth,depth,depth);
@@ -554,6 +767,7 @@ Shader "Hidden/EnviroBilateralBlur"
 			 
 			float4 frag(v2fDownsample input) : SV_Target
 			{
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
 				float depth = DownsampleDepth(input, _HalfResDepthBuffer, sampler_HalfResDepthBuffer);
 
 				return float4(depth,depth,depth,depth);

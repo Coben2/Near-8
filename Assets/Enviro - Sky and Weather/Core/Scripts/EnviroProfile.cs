@@ -197,6 +197,7 @@ public class EnviroSkySettings
     public Texture moonTexture;
     [Tooltip("The Moon's Glow texture.")]
     public Texture glowTexture;
+    [ColorUsage(true,true)]
     [Tooltip("The color of the moon")]
     public Color moonColor;
     [Range(0f, 5f)]
@@ -299,6 +300,9 @@ public class EnviroReflectionSettings
     [Tooltip("Reflection probe rendered Layers.")]
     public LayerMask globalReflectionLayers;
 
+    [Tooltip("Enable this option to update default EnvironmentReflections. This option could be needed for instanced indirect rendered materials that can't get reflections from reflection probes directly.")]
+    public bool updateDefaultEnvironmentReflections = false;
+
 #if ENVIRO_HD
     [Tooltip("Set the quality of clouds in reflection rendering. Leave empty to use global settings.")]
     public EnviroVolumeCloudsQuality reflectionCloudsQuality;
@@ -387,6 +391,8 @@ public class EnviroLightSettings
     [Tooltip("Set sky exposure based on sun position in sky.")]
     public AnimationCurve skyExposurePhysical = new AnimationCurve(new Keyframe(0, 3), new Keyframe(1, 14.5f));
 
+    [Tooltip("Modify the ambient color in HDRP.")]
+    public Gradient ambientColorMod;
 
     public enum AmbientUpdateMode 
     {
@@ -537,7 +543,9 @@ public class EnviroLightShaftsSettings
     [Tooltip("Color gradient for lightshafts based on moon position.")]
     public Gradient lightShaftsColorMoon;
     [Tooltip("Treshhold gradient for lightshafts based on sun position. This will influence lightshafts intensity!")]
+    [GradientUsage(true)]
     public Gradient thresholdColorSun;
+    [GradientUsage(true)]
     [Tooltip("Treshhold gradient for lightshafts based on moon position. This will influence lightshafts intensity!")]
     public Gradient thresholdColorMoon;
     [Tooltip("Radius of blurring applied.")]
@@ -711,7 +719,7 @@ public class EnviroCloudSettings
 public class EnviroParticleClouds
 {
     [Tooltip("Particle clouds height.")]
-    [Range(0.01f, 0.2f)]
+    [Range(0f, 0.2f)]
     public float height = 0.1f;
     [Tooltip("Global Color for flat clouds based sun positon.")]
 #if UNITY_2018_3_OR_NEWER
@@ -836,7 +844,7 @@ public static class EnviroProfileCreation
     {
         EnviroProfile profile = ScriptableObject.CreateInstance<EnviroProfile>();
 
-        profile.version = "2.3.1";
+        profile.version = "2.4.1";
         // Setup new profile with default settings
         SetupDefaults(profile);
 
@@ -887,107 +895,7 @@ public static class EnviroProfileCreation
         List<Color> gradientColors = new List<Color>();
         List<float> gradientTimes = new List<float>();
 
-        if (fromV == "2.1.0" || fromV == "2.1.1" || fromV == "2.1.2" && toV == "2.3.3")
-        {
-            if (defaultProfile != null)
-            {
-                profile.cloudsSettings.hgPhase = defaultProfile.cloudsSettings.hgPhase;
-                profile.cloudsSettings.silverLiningSpread = defaultProfile.cloudsSettings.silverLiningSpread;
-                profile.cloudsSettings.silverLiningIntensity = defaultProfile.cloudsSettings.silverLiningIntensity;
-                profile.cloudsSettings.lightIntensity = defaultProfile.cloudsSettings.lightIntensity;
-                profile.cloudsSettings.attenuationClamp = defaultProfile.cloudsSettings.attenuationClamp;
-                profile.cloudsSettings.volumeCloudsAmbientColor = defaultProfile.cloudsSettings.volumeCloudsAmbientColor;
-                profile.cloudsSettings.ambientLightIntensity = defaultProfile.cloudsSettings.ambientLightIntensity;
-#if ENVIRO_HD
-                profile.auroraSettings.auroraIntensity = defaultProfile.auroraSettings.auroraIntensity;
-#endif
-                profile.cloudsSettings.ParticleCloudsLayer1.height = 0.01f;
-                profile.cloudsSettings.ParticleCloudsLayer2.height = 0.01f;
-                profile.cloudsSettings.flatCloudsBaseTexture = defaultProfile.cloudsSettings.flatCloudsBaseTexture;
-                profile.cloudsSettings.flatCloudsDetailTexture = defaultProfile.cloudsSettings.flatCloudsDetailTexture;
-                profile.cloudsSettings.flatCloudsDirectLightColor = defaultProfile.cloudsSettings.flatCloudsDirectLightColor;
-                profile.cloudsSettings.flatCloudsAmbientLightColor = defaultProfile.cloudsSettings.flatCloudsAmbientLightColor;
-                profile.skySettings.moonTexture = defaultProfile.skySettings.moonTexture;
-                profile.skySettings.dithering = 0.015f;
-                profile.fogSettings.fogDithering = 0.015f;
-
-                profile.lightSettings.sunIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.moonIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.exposurePhysical = defaultProfile.lightSettings.exposurePhysical;
-                profile.lightSettings.skyExposurePhysical = defaultProfile.lightSettings.skyExposurePhysical;
-                profile.lightSettings.lightColorTemperature = defaultProfile.lightSettings.lightColorTemperature;
-                profile.lightSettings.lightColorTint = defaultProfile.lightSettings.lightColorTint;
-                profile.fogSettings.fogColorTint = defaultProfile.fogSettings.fogColorTint;
-
-                profile.version = toV;
-                return true;
-            }
-            else return false;
-        }
-
-        if (fromV == "2.1.3" || fromV == "2.1.4" || fromV == "2.1.5" && toV == "2.3.3")
-        {
-            if (defaultProfile != null)
-            {
-                profile.skySettings.moonTexture = defaultProfile.skySettings.moonTexture;
-                profile.cloudsSettings.hgPhase = defaultProfile.cloudsSettings.hgPhase;
-                profile.cloudsSettings.silverLiningSpread = defaultProfile.cloudsSettings.silverLiningSpread;
-                profile.cloudsSettings.silverLiningIntensity = defaultProfile.cloudsSettings.silverLiningIntensity;
-                profile.cloudsSettings.lightIntensity = defaultProfile.cloudsSettings.lightIntensity;
-                profile.cloudsSettings.attenuationClamp = defaultProfile.cloudsSettings.attenuationClamp;
-                profile.cloudsSettings.volumeCloudsAmbientColor = defaultProfile.cloudsSettings.volumeCloudsAmbientColor;
-                profile.cloudsSettings.ParticleCloudsLayer1.height = 0.01f;
-                profile.cloudsSettings.ParticleCloudsLayer2.height = 0.01f;
-                profile.cloudsSettings.flatCloudsBaseTexture = defaultProfile.cloudsSettings.flatCloudsBaseTexture;
-                profile.cloudsSettings.flatCloudsDetailTexture = defaultProfile.cloudsSettings.flatCloudsDetailTexture;
-                profile.cloudsSettings.flatCloudsDirectLightColor = defaultProfile.cloudsSettings.flatCloudsDirectLightColor;
-                profile.cloudsSettings.flatCloudsAmbientLightColor = defaultProfile.cloudsSettings.flatCloudsAmbientLightColor;
-                profile.skySettings.moonTexture = defaultProfile.skySettings.moonTexture;
-                profile.skySettings.dithering = 0.015f;
-                profile.fogSettings.fogDithering = 0.015f;
-
-                profile.lightSettings.sunIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.moonIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.exposurePhysical = defaultProfile.lightSettings.exposurePhysical;
-                profile.lightSettings.skyExposurePhysical = defaultProfile.lightSettings.skyExposurePhysical;
-                profile.lightSettings.lightColorTemperature = defaultProfile.lightSettings.lightColorTemperature;
-                profile.lightSettings.lightColorTint = defaultProfile.lightSettings.lightColorTint;
-                profile.fogSettings.fogColorTint = defaultProfile.fogSettings.fogColorTint;
-
-
-                profile.version = toV;
-                return true;
-            }
-            else return false;
-        }
-
-        if (fromV == "2.2.0" || fromV == "2.2.1" || fromV == "2.2.2" && toV == "2.3.3")
-        {
-            if (defaultProfile != null)
-            {
-                profile.cloudsSettings.flatCloudsBaseTexture = defaultProfile.cloudsSettings.flatCloudsBaseTexture;
-                profile.cloudsSettings.flatCloudsDetailTexture = defaultProfile.cloudsSettings.flatCloudsDetailTexture;
-                profile.cloudsSettings.flatCloudsDirectLightColor = defaultProfile.cloudsSettings.flatCloudsDirectLightColor;
-                profile.cloudsSettings.flatCloudsAmbientLightColor = defaultProfile.cloudsSettings.flatCloudsAmbientLightColor;
-                profile.skySettings.moonTexture = defaultProfile.skySettings.moonTexture;
-                profile.skySettings.dithering = 0.015f;
-                profile.fogSettings.fogDithering = 0.015f;
-
-                profile.lightSettings.sunIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.moonIntensityLux = defaultProfile.lightSettings.sunIntensityLux;
-                profile.lightSettings.exposurePhysical = defaultProfile.lightSettings.exposurePhysical;
-                profile.lightSettings.skyExposurePhysical = defaultProfile.lightSettings.skyExposurePhysical;
-                profile.lightSettings.lightColorTemperature = defaultProfile.lightSettings.lightColorTemperature;
-                profile.lightSettings.lightColorTint = defaultProfile.lightSettings.lightColorTint;
-                profile.fogSettings.fogColorTint = defaultProfile.fogSettings.fogColorTint;
-
-                profile.version = toV;
-                return true;
-            }
-            else return false;
-        }
-
-        if (fromV == "2.3.0" && toV == "2.3.3")
+        if (fromV == "2.3.0" && toV == "2.4.2")
         {
             if (defaultProfile != null)
             {
@@ -1009,12 +917,15 @@ public static class EnviroProfileCreation
                 profile.fogSettings.fogColorTint = defaultProfile.fogSettings.fogColorTint;
 
                 profile.version = toV;
+                #if UNITY_EDITOR
+                EditorUtility.SetDirty(profile);
+                #endif
                 return true;
             }
             else return false;
         }
 
-        if (fromV == "2.3.1" && toV == "2.3.3")
+        if (fromV == "2.3.1" && toV == "2.4.2")
         {
             if (defaultProfile != null)
             {
@@ -1026,16 +937,22 @@ public static class EnviroProfileCreation
                 profile.lightSettings.lightColorTint = defaultProfile.lightSettings.lightColorTint;
                 profile.fogSettings.fogColorTint = defaultProfile.fogSettings.fogColorTint;
                 profile.version = toV;
+                #if UNITY_EDITOR
+                EditorUtility.SetDirty(profile);
+                #endif
                 return true;
             }
             else return false;
         }
 
-        if (fromV == "2.3.2" && toV == "2.3.3")
+        if (fromV == "2.3.2" || fromV == "2.3.3" || fromV == "2.4.0" || fromV == "2.4.1" && toV == "2.4.2")
         {
             if (defaultProfile != null)
             {
                 profile.version = toV;
+                #if UNITY_EDITOR
+                EditorUtility.SetDirty(profile);
+                #endif
                 return true;
             }
             else return false;

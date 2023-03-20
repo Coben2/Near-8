@@ -18,6 +18,7 @@ public class LookAtCoroutine : MonoBehaviour
     // Update is called once per frame
     public void DoRotate()
     {
+        //Debug.Log("Rotate Called");
         if (LookCoroutine != null)
         {
             StopCoroutine(LookCoroutine);

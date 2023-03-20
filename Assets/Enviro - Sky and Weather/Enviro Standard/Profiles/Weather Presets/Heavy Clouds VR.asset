@@ -3,8 +3,9 @@
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
@@ -38,11 +39,12 @@ MonoBehaviour:
     cirrusAlpha: 0
     cirrusCoverage: 0
     cirrusColorPow: 2.17
-    flatAlpha: 1.208
+    flatCloudsDensity: 2.5
+    flatCloudsAbsorbtion: 2.5
+    flatCloudsDirectLightIntensity: 15
+    flatCloudsAmbientLightIntensity: 1
+    flatCloudsHGPhase: 0.9
     flatCoverage: 0.522
-    flatSoftness: 0.193
-    flatBrightness: 1
-    flatColorPow: 2.23
     particleLayer1Alpha: 0.507
     particleLayer1Brightness: 1
     particleLayer1ColorPow: 2.12
@@ -169,3 +171,6 @@ MonoBehaviour:
   blurDistance: 5000
   blurIntensity: 0.75
   blurSkyIntensity: 1.67
+  sceneExposureMod: 1
+  skyExposureMod: 1
+  lightIntensityMod: 1

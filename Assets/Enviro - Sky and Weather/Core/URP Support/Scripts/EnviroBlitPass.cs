@@ -1,4 +1,4 @@
-﻿#if ENVIRO_LWRP
+#if ENVIRO_LWRP
 
 namespace UnityEngine.Rendering.LWRP
 {
@@ -21,13 +21,18 @@ namespace UnityEngine.Rendering.LWRP
         public int blitShaderPassIndex = 0;
         public FilterMode filterMode { get; set; }
 
-        private RenderTargetIdentifier source { get; set; }
+        private UnityEngine.Rendering.Universal.ScriptableRenderer renderer { get; set; }
         private UnityEngine.Rendering.Universal.RenderTargetHandle destination { get; set; }
         private RenderTexture setMainTexTo { get; set; }
-
-    private Material blit;
+        private Material blitThrough;
         UnityEngine.Rendering.Universal.RenderTargetHandle m_TemporaryColorTexture;
         string m_ProfilerTag;
+
+        public override void Configure(CommandBuffer cmd, RenderTextureDescriptor cameraTextureDescriptor)
+        {
+            ConfigureTarget(renderer.cameraColorTarget);
+            ConfigureInput(UnityEngine.Rendering.Universal.ScriptableRenderPassInput.Depth);
+        }
 
         /// <summary>
         /// Create the CopyColorPass
@@ -46,10 +51,11 @@ namespace UnityEngine.Rendering.LWRP
         /// </summary>
         /// <param name="source">Source Render Target</param>
         /// <param name="destination">Destination Render Target</param>
-        public void Setup(RenderTargetIdentifier source, UnityEngine.Rendering.Universal.RenderTargetHandle destination)
+        public void Setup(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, UnityEngine.Rendering.Universal.RenderTargetHandle destination, Material mat)
         {
-            this.source = source;
+            this.renderer = renderer;
             this.destination = destination;
+            this.blitMaterial = mat; 
         }
 
         /// <summary>
@@ -57,19 +63,40 @@ namespace UnityEngine.Rendering.LWRP
         /// </summary>
         /// <param name="source">Source Render Target</param>
         /// <param name="destination">Destination Render Target</param>
-        public void Setup(RenderTargetIdentifier source, UnityEngine.Rendering.Universal.RenderTargetHandle destination, RenderTexture setTexTo)
+        public void Setup(UnityEngine.Rendering.Universal.ScriptableRenderer renderer, UnityEngine.Rendering.Universal.RenderTargetHandle destination, RenderTexture setTexTo)
         {
-            this.source = source;
+            this.renderer = renderer;
             this.destination = destination;
-            this.setMainTexTo = setTexTo;
+            this.setMainTexTo = setTexTo;      
+        }
 
-        
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target, Material mat, int pass)
+        {
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, mat,0,pass);
+        }
+
+        public void CustomBlit(CommandBuffer cmd, RenderTargetIdentifier source, RenderTargetIdentifier target)
+        {
+            if(blitThrough == null)
+                blitThrough = new Material(Shader.Find("Hidden/EnviroBlitThrough"));
+                
+            cmd.SetGlobalTexture("_MainTex", source);
+            cmd.SetRenderTarget(target, 0, CubemapFace.Unknown, -1);
+            cmd.DrawMesh(UnityEngine.Rendering.Universal.RenderingUtils.fullscreenMesh, Matrix4x4.identity, blitThrough);
         }
 
         /// <inheritdoc/>
         public override void Execute(ScriptableRenderContext context, ref UnityEngine.Rendering.Universal.RenderingData renderingData)
         {
-
             CommandBuffer cmd = CommandBufferPool.Get(m_ProfilerTag);
 
             RenderTextureDescriptor opaqueDesc = renderingData.cameraData.cameraTargetDescriptor;
@@ -85,22 +112,21 @@ namespace UnityEngine.Rendering.LWRP
                 if (setMainTexTo != null)
                 {
                     mainID = new RenderTargetIdentifier(setMainTexTo);
-
-                    Blit(cmd, mainID, m_TemporaryColorTexture.Identifier(), blitMaterial, blitShaderPassIndex);
+                    CustomBlit(cmd,mainID,m_TemporaryColorTexture.Identifier(),blitMaterial,blitShaderPassIndex);
                 }
                 else
-                  Blit(cmd, source, m_TemporaryColorTexture.Identifier(), blitMaterial, blitShaderPassIndex);                  
+                { 
+                  CustomBlit(cmd,renderer.cameraColorTarget,m_TemporaryColorTexture.Identifier(),blitMaterial,blitShaderPassIndex);
+                }  
 
-         
-               Blit(cmd, m_TemporaryColorTexture.Identifier(), source);
+                CustomBlit(cmd,m_TemporaryColorTexture.Identifier(),renderer.cameraColorTarget);
             }
             else
-            {       
-                Blit(cmd, source, destination.Identifier(), blitMaterial, blitShaderPassIndex);
+            {      
+                CustomBlit(cmd,renderer.cameraColorTarget, destination.Identifier(),blitMaterial,blitShaderPassIndex);
             }
       
             context.ExecuteCommandBuffer(cmd);
-
             CommandBufferPool.Release(cmd);
         }
 

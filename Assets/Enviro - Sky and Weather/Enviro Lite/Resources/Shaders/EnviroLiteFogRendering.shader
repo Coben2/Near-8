@@ -3,7 +3,7 @@ Shader "Enviro/Lite/EnviroFogRendering"
 {
 	Properties
 	{ 
-		_MainTex("Base (RGB)", Any) = "white" {}
+	//	_MainTex("Base (RGB)", Any) = "white" {}
 	}
 	SubShader
 	{
@@ -15,7 +15,7 @@ Shader "Enviro/Lite/EnviroFogRendering"
 	#pragma vertex vert
 	#pragma fragment frag
 	#pragma target 3.0
-
+	#pragma multi_compile __ ENVIROURP
 		//  Start: LuxWater
 #pragma multi_compile __ LUXWATER_DEFERREDFOG
 
@@ -60,12 +60,20 @@ Shader "Enviro/Lite/EnviroFogRendering"
 		UNITY_SETUP_INSTANCE_ID(v); //Insert
 		UNITY_INITIALIZE_OUTPUT(v2f, o); //Insert
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); //Insert
+#if defined(ENVIROURP)
+		o.pos = float4(v.vertex.xyz,1.0);
+		#if UNITY_UV_STARTS_AT_TOP
+                o.pos.y *= -1;
+         #endif
+#else
 		o.pos = v.vertex * float4(2, 2, 1, 1) + float4(-1, -1, 0, 0);
+#endif
 		o.uv.xy = v.texcoord.xy;
-#if UNITY_UV_STARTS_AT_TOP
-	if (_MainTex_TexelSize.y > 0)
+
+#if !ENVIROURP && UNITY_UV_STARTS_AT_TOP
+		if (_MainTex_TexelSize.y > 0)
 			o.uv.y = 1 - o.uv.y;
-#endif 
+#endif  
 		o.sky.x = saturate(_SunDir.y + 0.25);
 		o.sky.y = saturate(clamp(1.0 - _SunDir.y, 0.0, 0.5));
 		return o;

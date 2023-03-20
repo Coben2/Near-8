@@ -4,7 +4,7 @@ Shader "Enviro/Standard/EnviroFogRenderingSimple"
 	Properties
 	{ 
 		_EnviroVolumeLightingTex("Volume Lighting Tex",  Any) = ""{}
-		_MainTex("Source",  Any) = "black"{}
+		//_MainTex("Source",  Any) = "black"{}
 	}
 	SubShader
 	{
@@ -17,6 +17,7 @@ Shader "Enviro/Standard/EnviroFogRenderingSimple"
 	#pragma fragment frag
 	#pragma target 3.0
 	#pragma multi_compile ENVIROVOLUMELIGHT
+	#pragma multi_compile __ ENVIROURP
 	#pragma exclude_renderers gles
 
 		//  Start: LuxWater
@@ -59,12 +60,20 @@ Shader "Enviro/Standard/EnviroFogRenderingSimple"
 		UNITY_SETUP_INSTANCE_ID(v); //Insert
 		UNITY_INITIALIZE_OUTPUT(v2f, o); //Insert
 		UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); //Insert
-		o.pos = v.vertex * float4(2, 2, 1, 1) + float4(-1, -1, 0, 0);
+#if defined(ENVIROURP) 
+		o.pos = float4(v.vertex.xyz,1.0);
+		#if UNITY_UV_STARTS_AT_TOP
+                o.pos.y *= -1;
+         #endif
+#else
+		o.pos = UnityObjectToClipPos(v.vertex);
+#endif
 		o.uv.xy = v.texcoord.xy;
-#if UNITY_UV_STARTS_AT_TOP
-		if (_MainTex_TexelSize.y > 0)
-			o.uv.y = 1 - o.uv.y;
-#endif 
+
+#if !ENVIROURP && UNITY_UV_STARTS_AT_TOP
+		//if (_MainTex_TexelSize.y > 0)
+		//	o.uv.y = 1 - o.uv.y;
+#endif  
 		return o;
 	}
 
@@ -78,7 +87,7 @@ Shader "Enviro/Standard/EnviroFogRenderingSimple"
 
 	float4x4 proj, eyeToWorld;
 	if (unity_StereoEyeIndex == 0)
-	{
+	{ 
 		proj = _LeftViewFromScreen;
 		eyeToWorld = _LeftWorldFromView;
 	}
@@ -179,7 +188,7 @@ Shader "Enviro/Standard/EnviroFogRenderingSimple"
 		float4 source = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_MainTex, UnityStereoTransformScreenSpaceTex(i.uv));
 		
 		#if defined (ENVIROVOLUMELIGHT)
-			float4 volumeLighting = tex2D(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(i.uv));
+			float4 volumeLighting = UNITY_SAMPLE_SCREENSPACE_TEXTURE(_EnviroVolumeLightingTex, UnityStereoTransformScreenSpaceTex(i.uv));
 			volumeLighting *= _EnviroParams.x; 
 			if (_EnviroParams.w == 1)
 			{

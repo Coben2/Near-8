@@ -45,7 +45,7 @@ MonoBehaviour:
     flatCloudsAmbientLightIntensity: 1
     flatCloudsHGPhase: 0.9
     flatCoverage: 1.7
-    particleLayer1Alpha: 0.431
+    particleLayer1Alpha: 0.687
     particleLayer1Brightness: 0.862
     particleLayer1ColorPow: 2
     particleLayer2Alpha: 0.041
@@ -54,7 +54,7 @@ MonoBehaviour:
     particleCloudsOverwrite: 0
   fogStartDistance: 70
   fogDistance: 80
-  fogDensity: 0.00005
+  fogDensity: 0.0001
   weatherSkyMod:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 0}
@@ -142,10 +142,10 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 4
     m_NumAlphaKeys: 4
-  volumeLightIntensity: 0.5
+  volumeLightIntensity: 0.3
   shadowIntensityMod: 0
   heightFogDensity: 0.1
-  SkyFogHeight: 3
+  SkyFogHeight: 2.5
   skyFogStart: 0
   SkyFogIntensity: 1
   FogScatteringIntensity: 1.1

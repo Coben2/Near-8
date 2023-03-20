@@ -406,7 +406,7 @@ public class EnviroZone : MonoBehaviour {
 		Gizmos.matrix = rotationMatrix;
 
         if (useMeshZone && zoneMesh != null)
-            Gizmos.DrawMesh(zoneMesh);
+             Gizmos.DrawMesh(zoneMesh, 0, Vector3.zero, Quaternion.identity, zoneScale);
         else
             Gizmos.DrawCube(Vector3.zero, new Vector3(zoneScale.x, zoneScale.y, zoneScale.z));
 

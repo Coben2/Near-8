@@ -36,7 +36,7 @@ MonoBehaviour:
     coverageType: 1
     raymarchingScale: 1
     cloudType: 0
-    cirrusAlpha: 0.793
+    cirrusAlpha: 0
     cirrusCoverage: 0
     cirrusColorPow: 2
     flatCloudsDensity: 2.5
@@ -54,7 +54,7 @@ MonoBehaviour:
     particleCloudsOverwrite: 0
   fogStartDistance: 0
   fogDistance: 5000
-  fogDensity: 0.00005
+  fogDensity: 0.000005
   weatherSkyMod:
     serializedVersion: 2
     key0: {r: 0, g: 0, b: 0, a: 0}
@@ -142,12 +142,12 @@ MonoBehaviour:
     m_Mode: 0
     m_NumColorKeys: 4
     m_NumAlphaKeys: 4
-  volumeLightIntensity: 1
+  volumeLightIntensity: 0.065
   shadowIntensityMod: 0
   heightFogDensity: 0
-  SkyFogHeight: 1.82
+  SkyFogHeight: 0.45
   skyFogStart: 0.2
-  SkyFogIntensity: 0.711
+  SkyFogIntensity: 0.09
   FogScatteringIntensity: 1.25
   fogSunBlocking: 1
   moonIntensity: 1
